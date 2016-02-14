@@ -1,0 +1,25 @@
+{
+  "name": "luminate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjamminf/luminate.git"
+  },
+  "author": "Benjamin Fleming <benjfleming21@gmail.com> (http://benjamminf.github.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benjamminf/luminate/issues"
+  },
+  "homepage": "https://github.com/benjamminf/luminate#readme",
+  "devDependencies": {
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.2",
+    "babel-preset-es2015": "^6.5.0",
+    "webpack": "^1.12.13"
+  }
+}
