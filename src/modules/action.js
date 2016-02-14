@@ -2,14 +2,14 @@ import Lum from '../lum'
 import Base from './base'
 
 export default Base.extend({
-	
+
 	methods: {
 
 		bind: function(eventType, eventMethod)
 		{
-			this.$element.addEventListener(eventType, function(e)
+			this.$element.addEventListener(eventType, e =>
 			{
-				console.log(eventMethod)
+				this.$owner[eventMethod]()
 			})
 		}
 	},

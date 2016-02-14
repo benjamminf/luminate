@@ -135,9 +135,42 @@
 		directive: 'toggler',
 	
 		modules: {
+	
 			actions: _action2.default.extend({
 				directive: 'toggler-action'
 			})
+		},
+	
+		defaults: {
+			is: 'open',
+			classOpen: 'is-open',
+			classClosed: 'is-closed'
+		},
+	
+		events: {
+	
+			init: function init() {
+				this.toggle(this.$settings.is === 'open');
+			}
+		},
+	
+		methods: {
+	
+			toggle: function toggle(isOpen) {
+				this.isOpen = typeof isOpen === 'boolean' ? isOpen : !this.isOpen;
+	
+				var classes = this.$element.classList;
+				classes.toggle(this.$settings.classOpen, this.isOpen);
+				classes.toggle(this.$settings.classClosed, !this.isOpen);
+			},
+	
+			open: function open() {
+				this.toggle(true);
+			},
+	
+			close: function close() {
+				this.toggle(false);
+			}
 		}
 	});
 
@@ -467,8 +500,10 @@
 		methods: {
 	
 			bind: function bind(eventType, eventMethod) {
+				var _this = this;
+	
 				this.$element.addEventListener(eventType, function (e) {
-					console.log(eventMethod);
+					_this.$owner[eventMethod]();
 				});
 			}
 		},
