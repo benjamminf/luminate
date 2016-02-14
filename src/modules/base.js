@@ -1,14 +1,25 @@
+import Lum from '../lum'
 import * as Element from '../helpers/element'
 import * as Parser from '../helpers/parser'
 
 export default class Base
 {
-	static getSelector()
+	static getSelector(withRef = true)
 	{
 		const Module = this
 
 		let d = Module.directive
-		return `[${d}],[data-${d}]`
+		let selector = [`[data-${d}]`, `[${d}]`]
+
+		if(withRef)
+		{
+			for(let ref of Lum._refList)
+			{
+				selector.push(`[data-${d}\\:${ref}]`, `[${d}\\:${ref}]`)
+			}
+		}
+
+		return selector.join(',')
 	}
 
 	static getSettings(element)
@@ -16,9 +27,41 @@ export default class Base
 		const Module = this
 
 		let d = Module.directive
-		let s = element.getAttribute('data-' + d) || element.getAttribute(d)
+		let ref = Module.getReference(element)
+		let settings = ''
 
-		return Parser.settings(s)
+		if(ref)
+		{
+			settings = element.getAttribute(`data-${d}:${ref}`) || element.getAttribute(`${d}:${ref}`)
+		}
+		else
+		{
+			settings = element.getAttribute(`data-${d}`) || element.getAttribute(d)
+		}
+
+		return Parser.settings(settings)
+	}
+
+	static getReference(element)
+	{
+		const Module = this
+
+		let d = Module.directive
+
+		if(!element.hasAttribute(`data-${d}`) && !element.hasAttribute(d))
+		{
+			for(let ref of Lum._refList)
+			{
+				let hasRef = element.hasAttribute(`data-${d}:${ref}`) || element.hasAttribute(`${d}:${ref}`)
+
+				if(hasRef)
+				{
+					return ref
+				}
+			}
+		}
+
+		return null
 	}
 
 	static extend(settings)
@@ -37,6 +80,7 @@ export default class Base
 
 		Module.getSelector = SuperModule.getSelector
 		Module.getSettings = SuperModule.getSettings
+		Module.getReference = SuperModule.getReference
 		Module.extend = SuperModule.extend
 		Module.start = SuperModule.start
 
@@ -56,7 +100,7 @@ export default class Base
 
 		for(let element of Array.from(elements))
 		{
-			if(owner)
+			if(owner && !Module.getReference(element))
 			{
 				let OwnerModule = owner.constructor
 				let ownerElement = Element.closest(element, OwnerModule.getSelector())
@@ -73,7 +117,16 @@ export default class Base
 			}
 
 			Module.events.beforeInit(e)
-			new Module(e.element, e.settings, owner)
+			let module = new Module(e.element, e.settings, owner)
+
+			for(let property of Object.keys(Module.modules))
+			{
+				let SubModule = Module.modules[property]
+
+				SubModule.start(container, module)
+			}
+
+			Module.events.init.call(module)
 		}
 	}
 
@@ -87,15 +140,6 @@ export default class Base
 		this.$settings = Object.assign({}, Module.defaults, settings)
 
 		Element.data(element, Module.directive, this)
-
-		for(let property of Object.keys(Module.modules))
-		{
-			let SubModule = Module.modules[property]
-
-			SubModule.start(element, this)
-		}
-
-		Module.events.init.call(this)
 	}
 }
 
