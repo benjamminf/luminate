@@ -31,3 +31,8 @@ export function data(element, property, value)
 
 	return element[expandoProperty]
 }
+
+export function repaint(element = document.body)
+{
+	element.offsetTop
+}

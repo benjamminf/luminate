@@ -150,13 +150,19 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _base = __webpack_require__(3);
+	var _element = __webpack_require__(3);
+	
+	var Element = _interopRequireWildcard(_element);
+	
+	var _base = __webpack_require__(4);
 	
 	var _base2 = _interopRequireDefault(_base);
 	
 	var _action = __webpack_require__(6);
 	
 	var _action2 = _interopRequireDefault(_action);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -173,24 +179,69 @@
 		defaults: {
 			is: 'open',
 			classOpen: 'is-open',
-			classClosed: 'is-closed'
+			classClosed: 'is-closed',
+			classOpening: 'is-opening',
+			classClosing: 'is-closing'
 		},
 	
 		events: {
 	
 			init: function init() {
-				this.toggle(this.$settings.is === 'open');
+				var _this = this;
+	
+				this.toggle(this.$settings.is === 'open', false);
+	
+				if (this.$settings.transition) {
+					this.$element.addEventListener('transitionend', function (e) {
+						if (e.target === _this.$element) {
+							var classes = _this.$element.classList;
+	
+							if (_this.isOpen) {
+								classes.remove(_this.$settings.classOpening);
+								classes.add(_this.$settings.classOpen);
+							} else {
+								classes.remove(_this.$settings.classClosing);
+								classes.add(_this.$settings.classClosed);
+							}
+						}
+					});
+				}
 			}
 		},
 	
 		methods: {
 	
 			toggle: function toggle(isOpen) {
+				var transition = arguments.length <= 1 || arguments[1] === undefined ? this.$settings.transition : arguments[1];
+	
+				var prevIsOpen = this.isOpen;
+				var classes = this.$element.classList;
+	
 				this.isOpen = typeof isOpen === 'boolean' ? isOpen : !this.isOpen;
 	
-				var classes = this.$element.classList;
-				classes.toggle(this.$settings.classOpen, this.isOpen);
-				classes.toggle(this.$settings.classClosed, !this.isOpen);
+				if (transition && this.isOpen !== prevIsOpen) {
+					if (this.isOpen) {
+						classes.remove(this.$settings.classClosed);
+						classes.add(this.$settings.classClosing);
+	
+						Element.repaint(this.$element);
+	
+						classes.remove(this.$settings.classClosing);
+						classes.add(this.$settings.classOpening);
+					} else {
+						classes.remove(this.$settings.classOpen);
+						classes.add(this.$settings.classOpening);
+	
+						Element.repaint(this.$element);
+	
+						classes.remove(this.$settings.classOpening);
+						classes.add(this.$settings.classClosing);
+					}
+				} else {
+					classes.remove(this.$settings.classClosing, this.$settings.classOpening);
+					classes.toggle(this.$settings.classOpen, this.isOpen);
+					classes.toggle(this.$settings.classClosed, !this.isOpen);
+				}
 			},
 	
 			open: function open() {
@@ -205,6 +256,52 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.closest = closest;
+	exports.data = data;
+	exports.repaint = repaint;
+	function closest(element, selector) {
+		if (element.closest) {
+			return element.closest(selector);
+		}
+	
+		var currentElement = element;
+		while (currentElement) {
+			if (currentElement.matches(selector)) {
+				return currentElement;
+			}
+	
+			currentElement = currentElement.parentElement;
+		}
+	
+		return null;
+	}
+	
+	var expando = "lum-" + Date.now().toString(36) + "_";
+	function data(element, property, value) {
+		var expandoProperty = expando + property;
+	
+		if (value !== undefined) {
+			element[expandoProperty] = value;
+		}
+	
+		return element[expandoProperty];
+	}
+	
+	function repaint() {
+		var element = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
+	
+		element.offsetTop;
+	}
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -219,7 +316,7 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _element = __webpack_require__(4);
+	var _element = __webpack_require__(3);
 	
 	var Element = _interopRequireWildcard(_element);
 	
@@ -506,45 +603,6 @@
 	};
 
 /***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.closest = closest;
-	exports.data = data;
-	function closest(element, selector) {
-		if (element.closest) {
-			return element.closest(selector);
-		}
-	
-		var currentElement = element;
-		while (currentElement) {
-			if (currentElement.matches(selector)) {
-				return currentElement;
-			}
-	
-			currentElement = currentElement.parentElement;
-		}
-	
-		return null;
-	}
-	
-	var expando = "lum-" + Date.now().toString(36) + "_";
-	function data(element, property, value) {
-		var expandoProperty = expando + property;
-	
-		if (value !== undefined) {
-			element[expandoProperty] = value;
-		}
-	
-		return element[expandoProperty];
-	}
-
-/***/ },
 /* 5 */
 /***/ function(module, exports) {
 
@@ -603,7 +661,7 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _base = __webpack_require__(3);
+	var _base = __webpack_require__(4);
 	
 	var _base2 = _interopRequireDefault(_base);
 	
