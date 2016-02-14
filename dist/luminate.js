@@ -125,16 +125,19 @@
 	
 	var _base2 = _interopRequireDefault(_base);
 	
+	var _action = __webpack_require__(6);
+	
+	var _action2 = _interopRequireDefault(_action);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = _base2.default.extend({
 		directive: 'toggler',
 	
-		events: {
-	
-			init: function init() {
-				console.log(this);
-			}
+		modules: {
+			actions: _action2.default.extend({
+				directive: 'toggler-action'
+			})
 		}
 	});
 
@@ -260,14 +263,21 @@
 						var element = _step2.value;
 	
 						if (owner) {
-							var ownerElement = Element.closest(element, owner.getSelector());
+							var OwnerModule = owner.constructor;
+							var ownerElement = Element.closest(element, OwnerModule.getSelector());
 							if (ownerElement !== owner.$element) {
 								continue;
 							}
 						}
 	
 						var settings = Module.getSettings(element);
-						new Module(element, settings, owner);
+						var e = {
+							element: element,
+							settings: settings
+						};
+	
+						Module.events.beforeInit(e);
+						new Module(e.element, e.settings, owner);
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -294,14 +304,10 @@
 	
 			var Module = this.constructor;
 	
-			Module.events.beforeInit.call(this, {
-				element: element,
-				settings: settings
-			});
-	
 			this.$element = element;
 			this.$owner = owner;
 			this.$owns = [];
+			this.$settings = Object.assign({}, Module.defaults, settings);
 	
 			Element.data(element, Module.directive, this);
 	
@@ -435,6 +441,114 @@
 	
 		return parsed;
 	}
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _lum = __webpack_require__(1);
+	
+	var _lum2 = _interopRequireDefault(_lum);
+	
+	var _base = __webpack_require__(3);
+	
+	var _base2 = _interopRequireDefault(_base);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _base2.default.extend({
+	
+		methods: {
+	
+			bind: function bind(eventType, eventMethod) {
+				this.$element.addEventListener(eventType, function (e) {
+					console.log(eventMethod);
+				});
+			}
+		},
+	
+		events: {
+	
+			beforeInit: function beforeInit(e) {
+				var newSettings = {};
+	
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+	
+				try {
+					for (var _iterator = Object.keys(e.settings)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var setting = _step.value;
+	
+						var value = e.settings[setting];
+						var eventType = setting;
+						var eventMethod = value;
+	
+						if (value === true) {
+							eventType = 'click';
+							eventMethod = setting;
+						}
+	
+						if (!newSettings.hasOwnProperty(eventType)) {
+							newSettings[eventType] = [];
+						}
+	
+						newSettings[eventType].push(eventMethod);
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+	
+				e.settings = newSettings;
+			},
+	
+			init: function init() {
+				var settings = this.$settings;
+				var _iteratorNormalCompletion2 = true;
+				var _didIteratorError2 = false;
+				var _iteratorError2 = undefined;
+	
+				try {
+					for (var _iterator2 = Object.keys(settings)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+						var eventType = _step2.value;
+	
+						var eventMethod = settings[eventType];
+						this.bind(eventType, eventMethod);
+					}
+				} catch (err) {
+					_didIteratorError2 = true;
+					_iteratorError2 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion2 && _iterator2.return) {
+							_iterator2.return();
+						}
+					} finally {
+						if (_didIteratorError2) {
+							throw _iteratorError2;
+						}
+					}
+				}
+			}
+		}
+	});
 
 /***/ }
 /******/ ]);

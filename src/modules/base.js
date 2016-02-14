@@ -58,7 +58,8 @@ export default class Base
 		{
 			if(owner)
 			{
-				let ownerElement = Element.closest(element, owner.getSelector())
+				let OwnerModule = owner.constructor
+				let ownerElement = Element.closest(element, OwnerModule.getSelector())
 				if(ownerElement !== owner.$element)
 				{
 					continue;
@@ -66,7 +67,13 @@ export default class Base
 			}
 
 			let settings = Module.getSettings(element)
-			new Module(element, settings, owner)
+			let e = {
+				element: element,
+				settings: settings
+			}
+
+			Module.events.beforeInit(e)
+			new Module(e.element, e.settings, owner)
 		}
 	}
 
@@ -74,14 +81,10 @@ export default class Base
 	{
 		const Module = this.constructor
 
-		Module.events.beforeInit.call(this, {
-			element: element,
-			settings: settings
-		})
-
 		this.$element = element
 		this.$owner = owner
 		this.$owns = []
+		this.$settings = Object.assign({}, Module.defaults, settings)
 
 		Element.data(element, Module.directive, this)
 
