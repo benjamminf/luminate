@@ -1,4 +1,3 @@
-import Lum from '../lum'
 import * as Element from '../helpers/element'
 import * as Parser from '../helpers/parser'
 
