@@ -24,28 +24,61 @@ export default Base.extend({
 
 		init: function()
 		{
+			const Module = this.constructor
+
 			this.toggle(this.$settings.is === 'open', false)
 
-			if(this.$settings.transition)
+			if(this.$settings.transition === true)
 			{
 				this.$element.addEventListener('transitionend', e =>
 				{
 					if(e.target === this.$element)
 					{
-						const classes = this.$element.classList
-
-						if(this.isOpen)
-						{
-							classes.remove(this.$settings.classOpening)
-							classes.add(this.$settings.classOpen)
-						}
-						else
-						{
-							classes.remove(this.$settings.classClosing)
-							classes.add(this.$settings.classClosed)
-						}
+						Module.events.transitionEnd.call(this)
 					}
 				})
+			}
+		},
+
+		transitionStart: function()
+		{
+			const classes = this.$element.classList
+
+			if(this.isOpen)
+			{
+				classes.remove(this.$settings.classClosed)
+				classes.add(this.$settings.classClosing)
+
+				Element.repaint(this.$element)
+
+				classes.remove(this.$settings.classClosing)
+				classes.add(this.$settings.classOpening)
+			}
+			else
+			{
+				classes.remove(this.$settings.classOpen)
+				classes.add(this.$settings.classOpening)
+
+				Element.repaint(this.$element)
+
+				classes.remove(this.$settings.classOpening)
+				classes.add(this.$settings.classClosing)
+			}
+		},
+
+		transitionEnd: function()
+		{
+			const classes = this.$element.classList
+
+			if(this.isOpen)
+			{
+				classes.remove(this.$settings.classOpening)
+				classes.add(this.$settings.classOpen)
+			}
+			else
+			{
+				classes.remove(this.$settings.classClosing)
+				classes.add(this.$settings.classClosed)
 			}
 		}
 	},
@@ -54,6 +87,7 @@ export default Base.extend({
 
 		toggle: function(isOpen, transition = this.$settings.transition)
 		{
+			const Module = this.constructor
 			const prevIsOpen = this.isOpen
 			const classes = this.$element.classList
 
@@ -61,26 +95,7 @@ export default Base.extend({
 
 			if(transition && this.isOpen !== prevIsOpen)
 			{
-				if(this.isOpen)
-				{
-					classes.remove(this.$settings.classClosed)
-					classes.add(this.$settings.classClosing)
-
-					Element.repaint(this.$element)
-
-					classes.remove(this.$settings.classClosing)
-					classes.add(this.$settings.classOpening)
-				}
-				else
-				{
-					classes.remove(this.$settings.classOpen)
-					classes.add(this.$settings.classOpening)
-
-					Element.repaint(this.$element)
-
-					classes.remove(this.$settings.classOpening)
-					classes.add(this.$settings.classClosing)
-				}
+				Module.events.transitionStart.call(this)
 			}
 			else
 			{

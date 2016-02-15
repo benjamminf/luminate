@@ -175,22 +175,50 @@
 			init: function init() {
 				var _this = this;
 	
+				var Module = this.constructor;
+	
 				this.toggle(this.$settings.is === 'open', false);
 	
-				if (this.$settings.transition) {
+				if (this.$settings.transition === true) {
 					this.$element.addEventListener('transitionend', function (e) {
 						if (e.target === _this.$element) {
-							var classes = _this.$element.classList;
-	
-							if (_this.isOpen) {
-								classes.remove(_this.$settings.classOpening);
-								classes.add(_this.$settings.classOpen);
-							} else {
-								classes.remove(_this.$settings.classClosing);
-								classes.add(_this.$settings.classClosed);
-							}
+							Module.events.transitionEnd.call(_this);
 						}
 					});
+				}
+			},
+	
+			transitionStart: function transitionStart() {
+				var classes = this.$element.classList;
+	
+				if (this.isOpen) {
+					classes.remove(this.$settings.classClosed);
+					classes.add(this.$settings.classClosing);
+	
+					Element.repaint(this.$element);
+	
+					classes.remove(this.$settings.classClosing);
+					classes.add(this.$settings.classOpening);
+				} else {
+					classes.remove(this.$settings.classOpen);
+					classes.add(this.$settings.classOpening);
+	
+					Element.repaint(this.$element);
+	
+					classes.remove(this.$settings.classOpening);
+					classes.add(this.$settings.classClosing);
+				}
+			},
+	
+			transitionEnd: function transitionEnd() {
+				var classes = this.$element.classList;
+	
+				if (this.isOpen) {
+					classes.remove(this.$settings.classOpening);
+					classes.add(this.$settings.classOpen);
+				} else {
+					classes.remove(this.$settings.classClosing);
+					classes.add(this.$settings.classClosed);
 				}
 			}
 		},
@@ -200,29 +228,14 @@
 			toggle: function toggle(isOpen) {
 				var transition = arguments.length <= 1 || arguments[1] === undefined ? this.$settings.transition : arguments[1];
 	
+				var Module = this.constructor;
 				var prevIsOpen = this.isOpen;
 				var classes = this.$element.classList;
 	
 				this.isOpen = typeof isOpen === 'boolean' ? isOpen : !this.isOpen;
 	
 				if (transition && this.isOpen !== prevIsOpen) {
-					if (this.isOpen) {
-						classes.remove(this.$settings.classClosed);
-						classes.add(this.$settings.classClosing);
-	
-						Element.repaint(this.$element);
-	
-						classes.remove(this.$settings.classClosing);
-						classes.add(this.$settings.classOpening);
-					} else {
-						classes.remove(this.$settings.classOpen);
-						classes.add(this.$settings.classOpening);
-	
-						Element.repaint(this.$element);
-	
-						classes.remove(this.$settings.classOpening);
-						classes.add(this.$settings.classClosing);
-					}
+					Module.events.transitionStart.call(this);
 				} else {
 					classes.remove(this.$settings.classClosing, this.$settings.classOpening);
 					classes.toggle(this.$settings.classOpen, this.isOpen);
