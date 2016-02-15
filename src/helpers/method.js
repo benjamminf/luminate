@@ -13,6 +13,6 @@ export default class
 			return module[this.name].apply(module, this.args)
 		}
 
-		return null
+		return module[this.name]
 	}
 }

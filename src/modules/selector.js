@@ -2,6 +2,7 @@ import * as Element from '../helpers/element'
 import Base from './base'
 import Toggler from './toggler'
 import Action from './action'
+import Class from './class'
 
 export default Base.extend({
 	directive: 'selector',
@@ -10,6 +11,10 @@ export default Base.extend({
 
 		actions: Action.extend({
 			directive: 'selector-action'
+		}),
+
+		classes: Class.extend({
+			directive: 'selector-class'
 		}),
 
 		items: Toggler.extend({
@@ -56,6 +61,11 @@ export default Base.extend({
 					newValue: newSelected
 				})
 			}
+		},
+
+		isSelected: function(index)
+		{
+			return this.selected === index
 		}
 	}
 })

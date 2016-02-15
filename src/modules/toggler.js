@@ -1,6 +1,7 @@
 import * as Element from '../helpers/element'
 import Base from './base'
 import Action from './action'
+import Class from './class'
 
 export default Base.extend({
 	directive: 'toggler',
@@ -9,6 +10,10 @@ export default Base.extend({
 
 		actions: Action.extend({
 			directive: 'toggler-action'
+		}),
+
+		classes: Class.extend({
+			directive: 'toggler-class'
 		})
 	},
 
@@ -44,7 +49,7 @@ export default Base.extend({
 		{
 			const classes = this.$element.classList
 
-			if(this.isOpen)
+			if(this.showing)
 			{
 				classes.remove(this.$settings.classClosed)
 				classes.add(this.$settings.classClosing)
@@ -70,7 +75,7 @@ export default Base.extend({
 		{
 			const classes = this.$element.classList
 
-			if(this.isOpen)
+			if(this.showing)
 			{
 				classes.remove(this.$settings.classOpening)
 				classes.add(this.$settings.classOpen)
@@ -88,26 +93,38 @@ export default Base.extend({
 		toggle: function(isOpen, transition = true)
 		{
 			const Module = this.constructor
-			const prevIsOpen = this.isOpen
+			const prevIsOpen = this.showing
 			const classes = this.$element.classList
 
-			this.isOpen = (typeof isOpen === 'boolean' ? isOpen : !this.isOpen)
+			const oldShowing = this.showing
+			const newShowing = (typeof isOpen === 'boolean' ? isOpen : !this.showing)
 
-			if(transition && this.isOpen !== prevIsOpen)
+			if(oldShowing !== newShowing)
 			{
-				Module.trigger('transitionStart', {target: this})
-			}
-			else
-			{
-				classes.remove(this.$settings.classClosing, this.$settings.classOpening)
-				classes.toggle(this.$settings.classOpen, this.isOpen)
-				classes.toggle(this.$settings.classClosed, !this.isOpen)
-			}
+				this.showing = newShowing
 
-			Module.trigger('toggle', {
-				target: this,
-				transition: transition
-			})
+				if(transition && this.showing !== prevIsOpen)
+				{
+					Module.trigger('transitionStart', {target: this})
+				}
+				else
+				{
+					classes.remove(this.$settings.classClosing, this.$settings.classOpening)
+					classes.toggle(this.$settings.classOpen, this.showing)
+					classes.toggle(this.$settings.classClosed, !this.showing)
+				}
+
+				this.trigger('change', {
+					property: 'selected',
+					oldValue: oldShowing,
+					newValue: newShowing
+				})
+
+				Module.trigger('toggle', {
+					target: this,
+					transition: transition
+				})
+			}
 		},
 
 		open: function(transition = true)
@@ -118,6 +135,16 @@ export default Base.extend({
 		close: function(transition = true)
 		{
 			this.toggle(false, transition)
+		},
+
+		isOpen: function()
+		{
+			return this.showing
+		},
+
+		isClosed: function()
+		{
+			return !this.showing
 		}
 	}
 })

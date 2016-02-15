@@ -10,45 +10,48 @@ export function settings(string = '')
 		let item = part.split(':')
 		let setting = item[0]
 
-		if(item.length > 1)
-		{
-			let value = item[1]
-
-			if(!isNaN(value))
-			{
-				value = parseFloat(value)
-			}
-			else if(value === 'true')
-			{
-				value = true
-			}
-			else if(value === 'false')
-			{
-				value = false
-			}
-
-			parsed[setting] = value
-		}
-		else
-		{
-			parsed[setting] = true
-		}
+		parsed[setting] = (item.length > 1 ? value(item[1]) : true)
 	}
 
 	return parsed
 }
 
-export function method(value)
+export function value(data)
 {
-	if(typeof value === 'string')
+	if(!isNaN(data))
 	{
-		let eventMethod = value
+		return parseFloat(data)
+	}
+
+	if(data === 'true')
+	{
+		return true
+	}
+
+	if(data === 'false')
+	{
+		return false
+	}
+
+	return data
+}
+
+export function method(data)
+{
+	if(typeof data === 'string')
+	{
+		let eventMethod = data
 		let methodParts = eventMethod.split('|')
 		let methodName = methodParts[0]
 		let methodArgs = methodParts[1] ? methodParts[1].split('') : []
 
+		for(let i = 0; i < methodArgs.length; i++)
+		{
+			methodArgs[i] = value(methodArgs[i])
+		}
+
 		return new Method(methodName, methodArgs)
 	}
 
-	return value
+	return data
 }

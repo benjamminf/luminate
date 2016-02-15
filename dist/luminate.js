@@ -58,7 +58,7 @@
 	
 	var _toggler2 = _interopRequireDefault(_toggler);
 	
-	var _selector = __webpack_require__(10);
+	var _selector = __webpack_require__(11);
 	
 	var _selector2 = _interopRequireDefault(_selector);
 	
@@ -153,6 +153,10 @@
 	
 	var _action2 = _interopRequireDefault(_action);
 	
+	var _class = __webpack_require__(10);
+	
+	var _class2 = _interopRequireDefault(_class);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -164,6 +168,10 @@
 	
 			actions: _action2.default.extend({
 				directive: 'toggler-action'
+			}),
+	
+			classes: _class2.default.extend({
+				directive: 'toggler-class'
 			})
 		},
 	
@@ -196,7 +204,7 @@
 			transitionStart: function transitionStart() {
 				var classes = this.$element.classList;
 	
-				if (this.isOpen) {
+				if (this.showing) {
 					classes.remove(this.$settings.classClosed);
 					classes.add(this.$settings.classClosing);
 	
@@ -218,7 +226,7 @@
 			transitionEnd: function transitionEnd() {
 				var classes = this.$element.classList;
 	
-				if (this.isOpen) {
+				if (this.showing) {
 					classes.remove(this.$settings.classOpening);
 					classes.add(this.$settings.classOpen);
 				} else {
@@ -234,23 +242,34 @@
 				var transition = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 	
 				var Module = this.constructor;
-				var prevIsOpen = this.isOpen;
+				var prevIsOpen = this.showing;
 				var classes = this.$element.classList;
 	
-				this.isOpen = typeof isOpen === 'boolean' ? isOpen : !this.isOpen;
+				var oldShowing = this.showing;
+				var newShowing = typeof isOpen === 'boolean' ? isOpen : !this.showing;
 	
-				if (transition && this.isOpen !== prevIsOpen) {
-					Module.trigger('transitionStart', { target: this });
-				} else {
-					classes.remove(this.$settings.classClosing, this.$settings.classOpening);
-					classes.toggle(this.$settings.classOpen, this.isOpen);
-					classes.toggle(this.$settings.classClosed, !this.isOpen);
+				if (oldShowing !== newShowing) {
+					this.showing = newShowing;
+	
+					if (transition && this.showing !== prevIsOpen) {
+						Module.trigger('transitionStart', { target: this });
+					} else {
+						classes.remove(this.$settings.classClosing, this.$settings.classOpening);
+						classes.toggle(this.$settings.classOpen, this.showing);
+						classes.toggle(this.$settings.classClosed, !this.showing);
+					}
+	
+					this.trigger('change', {
+						property: 'selected',
+						oldValue: oldShowing,
+						newValue: newShowing
+					});
+	
+					Module.trigger('toggle', {
+						target: this,
+						transition: transition
+					});
 				}
-	
-				Module.trigger('toggle', {
-					target: this,
-					transition: transition
-				});
 			},
 	
 			open: function open() {
@@ -263,6 +282,14 @@
 				var transition = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 	
 				this.toggle(false, transition);
+			},
+	
+			isOpen: function isOpen() {
+				return this.showing;
+			},
+	
+			isClosed: function isClosed() {
+				return !this.showing;
 			}
 		}
 	});
@@ -732,6 +759,7 @@
 		value: true
 	});
 	exports.settings = settings;
+	exports.value = value;
 	exports.method = method;
 	
 	var _method = __webpack_require__(8);
@@ -757,21 +785,7 @@
 				var item = part.split(':');
 				var setting = item[0];
 	
-				if (item.length > 1) {
-					var value = item[1];
-	
-					if (!isNaN(value)) {
-						value = parseFloat(value);
-					} else if (value === 'true') {
-						value = true;
-					} else if (value === 'false') {
-						value = false;
-					}
-	
-					parsed[setting] = value;
-				} else {
-					parsed[setting] = true;
-				}
+				parsed[setting] = item.length > 1 ? value(item[1]) : true;
 			}
 		} catch (err) {
 			_didIteratorError = true;
@@ -791,17 +805,37 @@
 		return parsed;
 	}
 	
-	function method(value) {
-		if (typeof value === 'string') {
-			var eventMethod = value;
+	function value(data) {
+		if (!isNaN(data)) {
+			return parseFloat(data);
+		}
+	
+		if (data === 'true') {
+			return true;
+		}
+	
+		if (data === 'false') {
+			return false;
+		}
+	
+		return data;
+	}
+	
+	function method(data) {
+		if (typeof data === 'string') {
+			var eventMethod = data;
 			var methodParts = eventMethod.split('|');
 			var methodName = methodParts[0];
 			var methodArgs = methodParts[1] ? methodParts[1].split('') : [];
 	
+			for (var i = 0; i < methodArgs.length; i++) {
+				methodArgs[i] = value(methodArgs[i]);
+			}
+	
 			return new _method2.default(methodName, methodArgs);
 		}
 	
-		return value;
+		return data;
 	}
 
 /***/ },
@@ -835,7 +869,7 @@
 					return module[this.name].apply(module, this.args);
 				}
 	
-				return null;
+				return module[this.name];
 			}
 		}]);
 
@@ -969,6 +1003,112 @@
 		value: true
 	});
 	
+	var _lum = __webpack_require__(1);
+	
+	var _lum2 = _interopRequireDefault(_lum);
+	
+	var _base = __webpack_require__(5);
+	
+	var _base2 = _interopRequireDefault(_base);
+	
+	var _parser = __webpack_require__(7);
+	
+	var Parser = _interopRequireWildcard(_parser);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _base2.default.extend({
+	
+		events: {
+	
+			beforeInit: function beforeInit(e) {
+				var newSettings = {};
+	
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+	
+				try {
+					for (var _iterator = Object.keys(e.settings)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var setting = _step.value;
+	
+						var value = e.settings[setting];
+						var className = setting;
+						var eventMethod = value;
+	
+						newSettings[className] = Parser.method(eventMethod);
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+	
+				e.settings = newSettings;
+			},
+	
+			init: function init() {
+				var _this = this;
+	
+				var settings = this.$settings;
+				var _iteratorNormalCompletion2 = true;
+				var _didIteratorError2 = false;
+				var _iteratorError2 = undefined;
+	
+				try {
+					var _loop = function _loop() {
+						var className = _step2.value;
+	
+						var method = settings[className];
+	
+						_this.$owner.on('change', function (e) {
+							var toggle = method.run(_this.$owner);
+							_this.$element.classList.toggle(className, toggle);
+						});
+					};
+	
+					for (var _iterator2 = Object.keys(settings)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+						_loop();
+					}
+				} catch (err) {
+					_didIteratorError2 = true;
+					_iteratorError2 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion2 && _iterator2.return) {
+							_iterator2.return();
+						}
+					} finally {
+						if (_didIteratorError2) {
+							throw _iteratorError2;
+						}
+					}
+				}
+			}
+		}
+	});
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
 	var _element = __webpack_require__(4);
 	
 	var Element = _interopRequireWildcard(_element);
@@ -985,6 +1125,10 @@
 	
 	var _action2 = _interopRequireDefault(_action);
 	
+	var _class = __webpack_require__(10);
+	
+	var _class2 = _interopRequireDefault(_class);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -996,6 +1140,10 @@
 	
 			actions: _action2.default.extend({
 				directive: 'selector-action'
+			}),
+	
+			classes: _class2.default.extend({
+				directive: 'selector-class'
 			}),
 	
 			items: _toggler2.default.extend({
@@ -1040,6 +1188,10 @@
 						newValue: newSelected
 					});
 				}
+			},
+	
+			isSelected: function isSelected(index) {
+				return this.selected === index;
 			}
 		}
 	});
