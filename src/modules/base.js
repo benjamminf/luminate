@@ -4,30 +4,28 @@ import * as Parser from '../helpers/parser'
 
 export default class Base
 {
-	static getSelector(withRef = true)
+	static getSelector(owner = null)
 	{
 		const Module = this
 
 		let d = Module.directive
 		let selector = [`[data-${d}]`, `[${d}]`]
 
-		if(withRef)
+		if(owner)
 		{
-			for(let ref of Lum._refList)
-			{
-				selector.push(`[data-${d}\\:${ref}]`, `[${d}\\:${ref}]`)
-			}
+			let ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref')
+			selector.push(`[data-${d}\\:${ref}]`, `[${d}\\:${ref}]`)
 		}
 
 		return selector.join(',')
 	}
 
-	static getSettings(element)
+	static getSettings(element, owner = null)
 	{
 		const Module = this
 
 		let d = Module.directive
-		let ref = Module.getReference(element)
+		let ref = Module.getReference(element, owner)
 		let settings = ''
 
 		if(ref)
@@ -42,22 +40,20 @@ export default class Base
 		return Parser.settings(settings)
 	}
 
-	static getReference(element)
+	static getReference(element, owner = null)
 	{
 		const Module = this
 
 		let d = Module.directive
 
-		if(!element.hasAttribute(`data-${d}`) && !element.hasAttribute(d))
+		if(!element.hasAttribute(`data-${d}`) && !element.hasAttribute(d) && owner)
 		{
-			for(let ref of Lum._refList)
-			{
-				let hasRef = element.hasAttribute(`data-${d}:${ref}`) || element.hasAttribute(`${d}:${ref}`)
+			let ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref')
+			let hasRef = element.hasAttribute(`data-${d}:${ref}`) || element.hasAttribute(`${d}:${ref}`)
 
-				if(hasRef)
-				{
-					return ref
-				}
+			if(hasRef)
+			{
+				return ref
 			}
 		}
 
@@ -96,21 +92,21 @@ export default class Base
 	static start(container = document, owner = null)
 	{
 		const Module = this
-		const elements = container.querySelectorAll(Module.getSelector())
+		const elements = container.querySelectorAll(Module.getSelector(owner))
 
 		for(let element of Array.from(elements))
 		{
-			if(owner && !Module.getReference(element))
+			if(owner && !Module.getReference(element, owner))
 			{
 				let OwnerModule = owner.constructor
-				let ownerElement = Element.closest(element, OwnerModule.getSelector())
+				let ownerElement = Element.closest(element, OwnerModule.getSelector(owner.$owner))
 				if(ownerElement !== owner.$element)
 				{
 					continue;
 				}
 			}
 
-			let settings = Module.getSettings(element)
+			let settings = Module.getSettings(element, owner)
 			let e = {
 				element: element,
 				settings: settings

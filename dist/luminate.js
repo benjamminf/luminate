@@ -78,18 +78,15 @@
 	
 		start: function start() {
 			var container = arguments.length <= 0 || arguments[0] === undefined ? document : arguments[0];
-	
-			var refElements = container.querySelectorAll('[data-ref],[ref]');
 			var _iteratorNormalCompletion = true;
 			var _didIteratorError = false;
 			var _iteratorError = undefined;
 	
 			try {
-				for (var _iterator = Array.from(refElements)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var refElement = _step.value;
+				for (var _iterator = this._baseModules[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var Module = _step.value;
 	
-					var ref = refElement.getAttribute('data-ref') || refElement.getAttribute('ref');
-					this._refList.push(ref);
+					Module.start(container);
 				}
 			} catch (err) {
 				_didIteratorError = true;
@@ -102,31 +99,6 @@
 				} finally {
 					if (_didIteratorError) {
 						throw _iteratorError;
-					}
-				}
-			}
-	
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
-	
-			try {
-				for (var _iterator2 = this._baseModules[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var Module = _step2.value;
-	
-					Module.start(container);
-				}
-			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
-					}
-				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
 					}
 				}
 			}
@@ -338,38 +310,16 @@
 		_createClass(Base, null, [{
 			key: 'getSelector',
 			value: function getSelector() {
-				var withRef = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+				var owner = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 	
 				var Module = this;
 	
 				var d = Module.directive;
 				var selector = ['[data-' + d + ']', '[' + d + ']'];
 	
-				if (withRef) {
-					var _iteratorNormalCompletion = true;
-					var _didIteratorError = false;
-					var _iteratorError = undefined;
-	
-					try {
-						for (var _iterator = _lum2.default._refList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-							var ref = _step.value;
-	
-							selector.push('[data-' + d + '\\:' + ref + ']', '[' + d + '\\:' + ref + ']');
-						}
-					} catch (err) {
-						_didIteratorError = true;
-						_iteratorError = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion && _iterator.return) {
-								_iterator.return();
-							}
-						} finally {
-							if (_didIteratorError) {
-								throw _iteratorError;
-							}
-						}
-					}
+				if (owner) {
+					var ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref');
+					selector.push('[data-' + d + '\\:' + ref + ']', '[' + d + '\\:' + ref + ']');
 				}
 	
 				return selector.join(',');
@@ -377,10 +327,12 @@
 		}, {
 			key: 'getSettings',
 			value: function getSettings(element) {
+				var owner = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+	
 				var Module = this;
 	
 				var d = Module.directive;
-				var ref = Module.getReference(element);
+				var ref = Module.getReference(element, owner);
 				var settings = '';
 	
 				if (ref) {
@@ -394,38 +346,18 @@
 		}, {
 			key: 'getReference',
 			value: function getReference(element) {
+				var owner = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+	
 				var Module = this;
 	
 				var d = Module.directive;
 	
-				if (!element.hasAttribute('data-' + d) && !element.hasAttribute(d)) {
-					var _iteratorNormalCompletion2 = true;
-					var _didIteratorError2 = false;
-					var _iteratorError2 = undefined;
+				if (!element.hasAttribute('data-' + d) && !element.hasAttribute(d) && owner) {
+					var ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref');
+					var hasRef = element.hasAttribute('data-' + d + ':' + ref) || element.hasAttribute(d + ':' + ref);
 	
-					try {
-						for (var _iterator2 = _lum2.default._refList[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-							var ref = _step2.value;
-	
-							var hasRef = element.hasAttribute('data-' + d + ':' + ref) || element.hasAttribute(d + ':' + ref);
-	
-							if (hasRef) {
-								return ref;
-							}
-						}
-					} catch (err) {
-						_didIteratorError2 = true;
-						_iteratorError2 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion2 && _iterator2.return) {
-								_iterator2.return();
-							}
-						} finally {
-							if (_didIteratorError2) {
-								throw _iteratorError2;
-							}
-						}
+					if (hasRef) {
+						return ref;
 					}
 				}
 	
@@ -448,28 +380,28 @@
 				}(SuperModule);
 	
 				if (settings.methods) {
-					var _iteratorNormalCompletion3 = true;
-					var _didIteratorError3 = false;
-					var _iteratorError3 = undefined;
+					var _iteratorNormalCompletion = true;
+					var _didIteratorError = false;
+					var _iteratorError = undefined;
 	
 					try {
-						for (var _iterator3 = Object.keys(settings.methods)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-							var name = _step3.value;
+						for (var _iterator = Object.keys(settings.methods)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+							var name = _step.value;
 	
 							var method = settings.methods[name];
 							Module.prototype[name] = method;
 						}
 					} catch (err) {
-						_didIteratorError3 = true;
-						_iteratorError3 = err;
+						_didIteratorError = true;
+						_iteratorError = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion3 && _iterator3.return) {
-								_iterator3.return();
+							if (!_iteratorNormalCompletion && _iterator.return) {
+								_iterator.return();
 							}
 						} finally {
-							if (_didIteratorError3) {
-								throw _iteratorError3;
+							if (_didIteratorError) {
+								throw _iteratorError;
 							}
 						}
 					}
@@ -496,25 +428,25 @@
 				var owner = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 	
 				var Module = this;
-				var elements = container.querySelectorAll(Module.getSelector());
+				var elements = container.querySelectorAll(Module.getSelector(owner));
 	
-				var _iteratorNormalCompletion4 = true;
-				var _didIteratorError4 = false;
-				var _iteratorError4 = undefined;
+				var _iteratorNormalCompletion2 = true;
+				var _didIteratorError2 = false;
+				var _iteratorError2 = undefined;
 	
 				try {
-					for (var _iterator4 = Array.from(elements)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-						var element = _step4.value;
+					for (var _iterator2 = Array.from(elements)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+						var element = _step2.value;
 	
-						if (owner && !Module.getReference(element)) {
+						if (owner && !Module.getReference(element, owner)) {
 							var OwnerModule = owner.constructor;
-							var ownerElement = Element.closest(element, OwnerModule.getSelector());
+							var ownerElement = Element.closest(element, OwnerModule.getSelector(owner.$owner));
 							if (ownerElement !== owner.$element) {
 								continue;
 							}
 						}
 	
-						var settings = Module.getSettings(element);
+						var settings = Module.getSettings(element, owner);
 						var e = {
 							element: element,
 							settings: settings
@@ -523,29 +455,29 @@
 						Module.events.beforeInit(e);
 						var module = new Module(e.element, e.settings, owner);
 	
-						var _iteratorNormalCompletion5 = true;
-						var _didIteratorError5 = false;
-						var _iteratorError5 = undefined;
+						var _iteratorNormalCompletion3 = true;
+						var _didIteratorError3 = false;
+						var _iteratorError3 = undefined;
 	
 						try {
-							for (var _iterator5 = Object.keys(Module.modules)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-								var property = _step5.value;
+							for (var _iterator3 = Object.keys(Module.modules)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+								var property = _step3.value;
 	
 								var SubModule = Module.modules[property];
 	
 								SubModule.start(container, module);
 							}
 						} catch (err) {
-							_didIteratorError5 = true;
-							_iteratorError5 = err;
+							_didIteratorError3 = true;
+							_iteratorError3 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion5 && _iterator5.return) {
-									_iterator5.return();
+								if (!_iteratorNormalCompletion3 && _iterator3.return) {
+									_iterator3.return();
 								}
 							} finally {
-								if (_didIteratorError5) {
-									throw _iteratorError5;
+								if (_didIteratorError3) {
+									throw _iteratorError3;
 								}
 							}
 						}
@@ -553,16 +485,16 @@
 						Module.events.init.call(module);
 					}
 				} catch (err) {
-					_didIteratorError4 = true;
-					_iteratorError4 = err;
+					_didIteratorError2 = true;
+					_iteratorError2 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion4 && _iterator4.return) {
-							_iterator4.return();
+						if (!_iteratorNormalCompletion2 && _iterator2.return) {
+							_iterator2.return();
 						}
 					} finally {
-						if (_didIteratorError4) {
-							throw _iteratorError4;
+						if (_didIteratorError2) {
+							throw _iteratorError2;
 						}
 					}
 				}
