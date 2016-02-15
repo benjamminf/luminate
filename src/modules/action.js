@@ -9,6 +9,8 @@ export default Base.extend({
 		{
 			this.$element.addEventListener(eventType, e =>
 			{
+				e.preventDefault()
+				
 				this.$owner[eventMethod]()
 			})
 		}
