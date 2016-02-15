@@ -34,7 +34,7 @@ export default Base.extend({
 				{
 					if(e.target === this.$element)
 					{
-						Module.events.transitionEnd.call(this)
+						Module.trigger('transitionEnd', {target: this})
 					}
 				})
 			}
@@ -85,7 +85,7 @@ export default Base.extend({
 
 	methods: {
 
-		toggle: function(isOpen, transition = this.$settings.transition)
+		toggle: function(isOpen, transition = true)
 		{
 			const Module = this.constructor
 			const prevIsOpen = this.isOpen
@@ -95,7 +95,7 @@ export default Base.extend({
 
 			if(transition && this.isOpen !== prevIsOpen)
 			{
-				Module.events.transitionStart.call(this)
+				Module.trigger('transitionStart', {target: this})
 			}
 			else
 			{
@@ -105,14 +105,14 @@ export default Base.extend({
 			}
 		},
 
-		open: function()
+		open: function(transition = true)
 		{
-			this.toggle(true)
+			this.toggle(true, transition)
 		},
 
-		close: function()
+		close: function(transition = true)
 		{
-			this.toggle(false)
+			this.toggle(false, transition)
 		}
 	}
 })

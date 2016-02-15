@@ -63,6 +63,23 @@ export default class Base
 		return null
 	}
 
+	static trigger(eventType, data = {})
+	{
+		const Module = this
+		const ExtendedModule = Module.extending
+		const eventFn = Module.events[eventType]
+
+		if(eventFn)
+		{
+			eventFn.call(data.target, data)
+		}
+
+		if(ExtendedModule)
+		{
+			ExtendedModule.trigger(eventType, data)
+		}
+	}
+
 	static extend(settings)
 	{
 		const SuperModule = this
@@ -80,14 +97,16 @@ export default class Base
 		Module.getSelector = SuperModule.getSelector
 		Module.getSettings = SuperModule.getSettings
 		Module.getReference = SuperModule.getReference
+		Module.trigger = SuperModule.trigger
 		Module.extend = SuperModule.extend
 		Module.start = SuperModule.start
 
+		Module.extending = SuperModule
 		Module.directive = settings.directive
 		Module.modules = Object.assign({}, SuperModule.modules, settings.modules)
 		Module.defaults = Object.assign({}, SuperModule.defaults, settings.defaults)
 		Module.methods = Module.prototype
-		Module.events = Object.assign({}, SuperModule.events, settings.events)
+		Module.events = settings.events || {}
 
 		return Module
 	}
@@ -96,6 +115,7 @@ export default class Base
 	{
 		const Module = this
 		const elements = container.querySelectorAll(Module.getSelector(owner))
+		const modules = []
 
 		let p = Config.directivePrefix
 
@@ -117,20 +137,26 @@ export default class Base
 				settings: settings
 			}
 
-			Module.events.beforeInit(e)
+			Module.trigger('beforeInit', e)
+
 			let module = new Module(e.element, e.settings, owner)
 
 			for(let property of Object.keys(Module.modules))
 			{
 				let SubModule = Module.modules[property]
+				let subModules = SubModule.start(container, module)
 
-				SubModule.start(container, module)
+				module.$owns[property] = subModules
 			}
 
-			e.element.removeAttribute(`${p}cloak`)
+			module.$element.removeAttribute(`${p}cloak`)
 
-			Module.events.init.call(module)
+			Module.trigger('init', {target: module})
+
+			modules.push(module)
 		}
+
+		return modules
 	}
 
 	constructor(element, settings = {}, owner = null)
@@ -139,7 +165,7 @@ export default class Base
 
 		this.$element = element
 		this.$owner = owner
-		this.$owns = []
+		this.$owns = {}
 		this.$settings = Object.assign({}, Module.defaults, settings)
 
 		Element.data(element, Module.directive, this)
@@ -150,9 +176,4 @@ Base.directive = null
 Base.modules = {}
 Base.defaults = {}
 Base.methods = Base.prototype
-Base.events = {
-	beforeInit: function() {},
-	init: function() {},
-	beforeDestroy: function() {},
-	destroy: function() {}
-}
+Base.events = {}

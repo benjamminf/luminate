@@ -58,11 +58,16 @@
 	
 	var _toggler2 = _interopRequireDefault(_toggler);
 	
+	var _selector = __webpack_require__(8);
+	
+	var _selector2 = _interopRequireDefault(_selector);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	_lum2.default.config = _config2.default;
 	
 	_lum2.default.register(_toggler2.default);
+	_lum2.default.register(_selector2.default);
 	
 	window.Lum = _lum2.default;
 
@@ -182,7 +187,7 @@
 				if (this.$settings.transition === true) {
 					this.$element.addEventListener('transitionend', function (e) {
 						if (e.target === _this.$element) {
-							Module.events.transitionEnd.call(_this);
+							Module.trigger('transitionEnd', { target: _this });
 						}
 					});
 				}
@@ -226,7 +231,7 @@
 		methods: {
 	
 			toggle: function toggle(isOpen) {
-				var transition = arguments.length <= 1 || arguments[1] === undefined ? this.$settings.transition : arguments[1];
+				var transition = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 	
 				var Module = this.constructor;
 				var prevIsOpen = this.isOpen;
@@ -235,7 +240,7 @@
 				this.isOpen = typeof isOpen === 'boolean' ? isOpen : !this.isOpen;
 	
 				if (transition && this.isOpen !== prevIsOpen) {
-					Module.events.transitionStart.call(this);
+					Module.trigger('transitionStart', { target: this });
 				} else {
 					classes.remove(this.$settings.classClosing, this.$settings.classOpening);
 					classes.toggle(this.$settings.classOpen, this.isOpen);
@@ -244,11 +249,15 @@
 			},
 	
 			open: function open() {
-				this.toggle(true);
+				var transition = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+				this.toggle(true, transition);
 			},
 	
 			close: function close() {
-				this.toggle(false);
+				var transition = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+				this.toggle(false, transition);
 			}
 		}
 	});
@@ -394,6 +403,23 @@
 				return null;
 			}
 		}, {
+			key: 'trigger',
+			value: function trigger(eventType) {
+				var data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	
+				var Module = this;
+				var ExtendedModule = Module.extending;
+				var eventFn = Module.events[eventType];
+	
+				if (eventFn) {
+					eventFn.call(data.target, data);
+				}
+	
+				if (ExtendedModule) {
+					ExtendedModule.trigger(eventType, data);
+				}
+			}
+		}, {
 			key: 'extend',
 			value: function extend(settings) {
 				var SuperModule = this;
@@ -440,14 +466,16 @@
 				Module.getSelector = SuperModule.getSelector;
 				Module.getSettings = SuperModule.getSettings;
 				Module.getReference = SuperModule.getReference;
+				Module.trigger = SuperModule.trigger;
 				Module.extend = SuperModule.extend;
 				Module.start = SuperModule.start;
 	
+				Module.extending = SuperModule;
 				Module.directive = settings.directive;
 				Module.modules = Object.assign({}, SuperModule.modules, settings.modules);
 				Module.defaults = Object.assign({}, SuperModule.defaults, settings.defaults);
 				Module.methods = Module.prototype;
-				Module.events = Object.assign({}, SuperModule.events, settings.events);
+				Module.events = settings.events || {};
 	
 				return Module;
 			}
@@ -459,6 +487,7 @@
 	
 				var Module = this;
 				var elements = container.querySelectorAll(Module.getSelector(owner));
+				var modules = [];
 	
 				var p = _config2.default.directivePrefix;
 	
@@ -484,7 +513,8 @@
 							settings: settings
 						};
 	
-						Module.events.beforeInit(e);
+						Module.trigger('beforeInit', e);
+	
 						var module = new Module(e.element, e.settings, owner);
 	
 						var _iteratorNormalCompletion3 = true;
@@ -496,8 +526,9 @@
 								var property = _step3.value;
 	
 								var SubModule = Module.modules[property];
+								var subModules = SubModule.start(container, module);
 	
-								SubModule.start(container, module);
+								module.$owns[property] = subModules;
 							}
 						} catch (err) {
 							_didIteratorError3 = true;
@@ -514,9 +545,11 @@
 							}
 						}
 	
-						e.element.removeAttribute(p + 'cloak');
+						module.$element.removeAttribute(p + 'cloak');
 	
-						Module.events.init.call(module);
+						Module.trigger('init', { target: module });
+	
+						modules.push(module);
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -532,6 +565,8 @@
 						}
 					}
 				}
+	
+				return modules;
 			}
 		}]);
 	
@@ -545,7 +580,7 @@
 	
 			this.$element = element;
 			this.$owner = owner;
-			this.$owns = [];
+			this.$owns = {};
 			this.$settings = Object.assign({}, Module.defaults, settings);
 	
 			Element.data(element, Module.directive, this);
@@ -561,12 +596,7 @@
 	Base.modules = {};
 	Base.defaults = {};
 	Base.methods = Base.prototype;
-	Base.events = {
-		beforeInit: function beforeInit() {},
-		init: function init() {},
-		beforeDestroy: function beforeDestroy() {},
-		destroy: function destroy() {}
-	};
+	Base.events = {};
 
 /***/ },
 /* 6 */
@@ -643,7 +673,7 @@
 				this.$element.addEventListener(eventType, function (e) {
 					e.preventDefault();
 	
-					_this.$owner[eventMethod]();
+					_this.$owner[eventMethod.name].apply(_this.$owner, eventMethod.args);
 				});
 			}
 		},
@@ -674,7 +704,14 @@
 							newSettings[eventType] = [];
 						}
 	
-						newSettings[eventType].push(eventMethod);
+						var methodParts = eventMethod.split('|');
+						var methodName = methodParts[0];
+						var methodArgs = methodParts[1] ? methodParts[1].split('') : [];
+	
+						newSettings[eventType].push({
+							name: methodName,
+							args: methodArgs
+						});
 					}
 				} catch (err) {
 					_didIteratorError = true;
@@ -703,9 +740,30 @@
 				try {
 					for (var _iterator2 = Object.keys(settings)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 						var eventType = _step2.value;
+						var _iteratorNormalCompletion3 = true;
+						var _didIteratorError3 = false;
+						var _iteratorError3 = undefined;
 	
-						var eventMethod = settings[eventType];
-						this.bind(eventType, eventMethod);
+						try {
+							for (var _iterator3 = settings[eventType][Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+								var eventMethod = _step3.value;
+	
+								this.bind(eventType, eventMethod);
+							}
+						} catch (err) {
+							_didIteratorError3 = true;
+							_iteratorError3 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion3 && _iterator3.return) {
+									_iterator3.return();
+								}
+							} finally {
+								if (_didIteratorError3) {
+									throw _iteratorError3;
+								}
+							}
+						}
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -720,6 +778,80 @@
 							throw _iteratorError2;
 						}
 					}
+				}
+			}
+		}
+	});
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _element = __webpack_require__(4);
+	
+	var Element = _interopRequireWildcard(_element);
+	
+	var _base = __webpack_require__(5);
+	
+	var _base2 = _interopRequireDefault(_base);
+	
+	var _toggler = __webpack_require__(3);
+	
+	var _toggler2 = _interopRequireDefault(_toggler);
+	
+	var _action = __webpack_require__(7);
+	
+	var _action2 = _interopRequireDefault(_action);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	exports.default = _base2.default.extend({
+		directive: 'selector',
+	
+		modules: {
+	
+			actions: _action2.default.extend({
+				directive: 'selector-action'
+			}),
+	
+			items: _toggler2.default.extend({
+				directive: 'selector-item'
+			})
+		},
+	
+		defaults: {
+			selected: 0,
+			classSelected: 'is-selected'
+		},
+	
+		events: {
+	
+			init: function init() {
+				var Module = this.constructor;
+	
+				this.select(this.$settings.selected | 0, false);
+			}
+		},
+	
+		methods: {
+	
+			select: function select(index) {
+				var transition = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+	
+				this.selected = index | 0;
+	
+				for (var i = 0; i < this.$owns.items.length; i++) {
+					var item = this.$owns.items[i];
+	
+					item.toggle(i === this.selected, transition);
 				}
 			}
 		}

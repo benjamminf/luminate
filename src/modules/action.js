@@ -10,8 +10,8 @@ export default Base.extend({
 			this.$element.addEventListener(eventType, e =>
 			{
 				e.preventDefault()
-				
-				this.$owner[eventMethod]()
+
+				this.$owner[eventMethod.name].apply(this.$owner, eventMethod.args)
 			})
 		}
 	},
@@ -39,7 +39,14 @@ export default Base.extend({
 					newSettings[eventType] = []
 				}
 
-				newSettings[eventType].push(eventMethod)
+				let methodParts = eventMethod.split('|')
+				let methodName = methodParts[0]
+				let methodArgs = methodParts[1] ? methodParts[1].split('') : []
+
+				newSettings[eventType].push({
+					name: methodName,
+					args: methodArgs
+				})
 			}
 
 			e.settings = newSettings
@@ -50,8 +57,10 @@ export default Base.extend({
 			const settings = this.$settings
 			for(let eventType of Object.keys(settings))
 			{
-				let eventMethod = settings[eventType]
-				this.bind(eventType, eventMethod)
+				for(let eventMethod of settings[eventType])
+				{
+					this.bind(eventType, eventMethod)
+				}
 			}
 		}
 	}
