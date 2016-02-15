@@ -103,6 +103,11 @@ export default Base.extend({
 				classes.toggle(this.$settings.classOpen, this.isOpen)
 				classes.toggle(this.$settings.classClosed, !this.isOpen)
 			}
+
+			Module.trigger('toggle', {
+				target: this,
+				transition: transition
+			})
 		},
 
 		open: function(transition = true)
