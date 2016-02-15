@@ -1,4 +1,3 @@
-import Lum from '../lum'
 import * as Element from '../helpers/element'
 import Base from './base'
 import Action from './action'

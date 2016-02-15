@@ -136,10 +136,6 @@
 		value: true
 	});
 	
-	var _lum = __webpack_require__(1);
-	
-	var _lum2 = _interopRequireDefault(_lum);
-	
 	var _element = __webpack_require__(4);
 	
 	var Element = _interopRequireWildcard(_element);
@@ -152,9 +148,9 @@
 	
 	var _action2 = _interopRequireDefault(_action);
 	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	exports.default = _base2.default.extend({
 		directive: 'toggler',
