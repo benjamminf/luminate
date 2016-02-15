@@ -36,13 +36,25 @@ export default Base.extend({
 
 		select: function(index, transition = true)
 		{
-			this.selected = index | 0
+			const oldSelected = this.selected
+			const newSelected = index | 0
 
-			for(let i = 0; i < this.$owns.items.length; i++)
+			if(oldSelected !== newSelected)
 			{
-				let item = this.$owns.items[i]
+				this.selected = newSelected
 
-				item.toggle(i === this.selected, transition)
+				for(let i = 0; i < this.$owns.items.length; i++)
+				{
+					let item = this.$owns.items[i]
+
+					item.toggle(i === newSelected, transition)
+				}
+
+				this.trigger('change', {
+					property: 'selected',
+					oldValue: oldSelected,
+					newValue: newSelected
+				})
 			}
 		}
 	}

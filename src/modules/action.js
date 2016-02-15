@@ -1,20 +1,8 @@
 import Lum from '../lum'
 import Base from './base'
+import * as Parser from '../helpers/parser'
 
 export default Base.extend({
-
-	methods: {
-
-		bind: function(eventType, eventMethod)
-		{
-			this.$element.addEventListener(eventType, e =>
-			{
-				e.preventDefault()
-
-				this.$owner[eventMethod.name].apply(this.$owner, eventMethod.args)
-			})
-		}
-	},
 
 	events: {
 
@@ -39,14 +27,7 @@ export default Base.extend({
 					newSettings[eventType] = []
 				}
 
-				let methodParts = eventMethod.split('|')
-				let methodName = methodParts[0]
-				let methodArgs = methodParts[1] ? methodParts[1].split('') : []
-
-				newSettings[eventType].push({
-					name: methodName,
-					args: methodArgs
-				})
+				newSettings[eventType].push(Parser.method(eventMethod))
 			}
 
 			e.settings = newSettings
@@ -57,10 +38,14 @@ export default Base.extend({
 			const settings = this.$settings
 			for(let eventType of Object.keys(settings))
 			{
-				for(let eventMethod of settings[eventType])
+				settings[eventType].forEach(method =>
 				{
-					this.bind(eventType, eventMethod)
-				}
+					this.$element.addEventListener(eventType, e =>
+					{
+						e.preventDefault()
+						method.run(this.$owner)
+					})
+				})
 			}
 		}
 	}

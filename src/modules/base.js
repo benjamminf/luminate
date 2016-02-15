@@ -1,8 +1,9 @@
 import Config from '../config'
+import Emitter from '../helpers/emitter'
 import * as Element from '../helpers/element'
 import * as Parser from '../helpers/parser'
 
-export default class Base
+export default class Base extends Emitter
 {
 	static getSelector(owner = null)
 	{
@@ -161,6 +162,8 @@ export default class Base
 
 	constructor(element, settings = {}, owner = null)
 	{
+		super()
+
 		const Module = this.constructor
 
 		this.$element = element
