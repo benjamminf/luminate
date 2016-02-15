@@ -50,11 +50,17 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _toggler = __webpack_require__(2);
+	var _config = __webpack_require__(2);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _toggler = __webpack_require__(3);
 	
 	var _toggler2 = _interopRequireDefault(_toggler);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	_lum2.default.config = _config2.default;
 	
 	_lum2.default.register(_toggler2.default);
 	
@@ -104,12 +110,24 @@
 			}
 		},
 	
-		_refList: [],
 		_baseModules: []
 	};
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.default = {
+		directivePrefix: ''
+	};
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -122,15 +140,15 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _element = __webpack_require__(3);
+	var _element = __webpack_require__(4);
 	
 	var Element = _interopRequireWildcard(_element);
 	
-	var _base = __webpack_require__(4);
+	var _base = __webpack_require__(5);
 	
 	var _base2 = _interopRequireDefault(_base);
 	
-	var _action = __webpack_require__(6);
+	var _action = __webpack_require__(7);
 	
 	var _action2 = _interopRequireDefault(_action);
 	
@@ -227,7 +245,7 @@
 	});
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -273,7 +291,7 @@
 	}
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -284,15 +302,21 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _element = __webpack_require__(3);
+	var _config = __webpack_require__(2);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _element = __webpack_require__(4);
 	
 	var Element = _interopRequireWildcard(_element);
 	
-	var _parser = __webpack_require__(5);
+	var _parser = __webpack_require__(6);
 	
 	var Parser = _interopRequireWildcard(_parser);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
@@ -308,12 +332,13 @@
 	
 				var Module = this;
 	
+				var p = _config2.default.directivePrefix;
 				var d = Module.directive;
-				var selector = ['[data-' + d + ']', '[' + d + ']'];
+				var selector = ['[' + p + d + ']'];
 	
 				if (owner) {
-					var ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref');
-					selector.push('[data-' + d + '\\:' + ref + ']', '[' + d + '\\:' + ref + ']');
+					var ref = owner.$element.getAttribute(p + 'ref');
+					selector.push('[' + p + d + '\\:' + ref + ']');
 				}
 	
 				return selector.join(',');
@@ -325,14 +350,15 @@
 	
 				var Module = this;
 	
+				var p = _config2.default.directivePrefix;
 				var d = Module.directive;
 				var ref = Module.getReference(element, owner);
 				var settings = '';
 	
 				if (ref) {
-					settings = element.getAttribute('data-' + d + ':' + ref) || element.getAttribute(d + ':' + ref);
+					settings = element.getAttribute('' + p + d + ':' + ref);
 				} else {
-					settings = element.getAttribute('data-' + d) || element.getAttribute(d);
+					settings = element.getAttribute('' + p + d) || element.getAttribute(d);
 				}
 	
 				return Parser.settings(settings);
@@ -344,11 +370,12 @@
 	
 				var Module = this;
 	
+				var p = _config2.default.directivePrefix;
 				var d = Module.directive;
 	
-				if (!element.hasAttribute('data-' + d) && !element.hasAttribute(d) && owner) {
-					var ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref');
-					var hasRef = element.hasAttribute('data-' + d + ':' + ref) || element.hasAttribute(d + ':' + ref);
+				if (!element.hasAttribute('' + p + d) && owner) {
+					var ref = owner.$element.getAttribute(p + 'ref');
+					var hasRef = element.hasAttribute('' + p + d + ':' + ref);
 	
 					if (hasRef) {
 						return ref;
@@ -424,6 +451,8 @@
 				var Module = this;
 				var elements = container.querySelectorAll(Module.getSelector(owner));
 	
+				var p = _config2.default.directivePrefix;
+	
 				var _iteratorNormalCompletion2 = true;
 				var _didIteratorError2 = false;
 				var _iteratorError2 = undefined;
@@ -475,6 +504,8 @@
 								}
 							}
 						}
+	
+						e.element.removeAttribute(p + 'cloak');
 	
 						Module.events.init.call(module);
 					}
@@ -529,7 +560,7 @@
 	};
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -574,7 +605,7 @@
 	}
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -587,7 +618,7 @@
 	
 	var _lum2 = _interopRequireDefault(_lum);
 	
-	var _base = __webpack_require__(4);
+	var _base = __webpack_require__(5);
 	
 	var _base2 = _interopRequireDefault(_base);
 	

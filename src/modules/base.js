@@ -1,3 +1,4 @@
+import Config from '../config'
 import * as Element from '../helpers/element'
 import * as Parser from '../helpers/parser'
 
@@ -7,13 +8,14 @@ export default class Base
 	{
 		const Module = this
 
+		let p = Config.directivePrefix
 		let d = Module.directive
-		let selector = [`[data-${d}]`, `[${d}]`]
+		let selector = [`[${p}${d}]`]
 
 		if(owner)
 		{
-			let ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref')
-			selector.push(`[data-${d}\\:${ref}]`, `[${d}\\:${ref}]`)
+			let ref = owner.$element.getAttribute(`${p}ref`)
+			selector.push(`[${p}${d}\\:${ref}]`)
 		}
 
 		return selector.join(',')
@@ -23,17 +25,18 @@ export default class Base
 	{
 		const Module = this
 
+		let p = Config.directivePrefix
 		let d = Module.directive
 		let ref = Module.getReference(element, owner)
 		let settings = ''
 
 		if(ref)
 		{
-			settings = element.getAttribute(`data-${d}:${ref}`) || element.getAttribute(`${d}:${ref}`)
+			settings = element.getAttribute(`${p}${d}:${ref}`)
 		}
 		else
 		{
-			settings = element.getAttribute(`data-${d}`) || element.getAttribute(d)
+			settings = element.getAttribute(`${p}${d}`) || element.getAttribute(d)
 		}
 
 		return Parser.settings(settings)
@@ -43,12 +46,13 @@ export default class Base
 	{
 		const Module = this
 
+		let p = Config.directivePrefix
 		let d = Module.directive
 
-		if(!element.hasAttribute(`data-${d}`) && !element.hasAttribute(d) && owner)
+		if(!element.hasAttribute(`${p}${d}`) && owner)
 		{
-			let ref = owner.$element.getAttribute('data-ref') || owner.$element.getAttribute('ref')
-			let hasRef = element.hasAttribute(`data-${d}:${ref}`) || element.hasAttribute(`${d}:${ref}`)
+			let ref = owner.$element.getAttribute(`${p}ref`)
+			let hasRef = element.hasAttribute(`${p}${d}:${ref}`)
 
 			if(hasRef)
 			{
@@ -93,6 +97,8 @@ export default class Base
 		const Module = this
 		const elements = container.querySelectorAll(Module.getSelector(owner))
 
+		let p = Config.directivePrefix
+
 		for(let element of Array.from(elements))
 		{
 			if(owner && !Module.getReference(element, owner))
@@ -120,6 +126,8 @@ export default class Base
 
 				SubModule.start(container, module)
 			}
+
+			e.element.removeAttribute(`${p}cloak`)
 
 			Module.events.init.call(module)
 		}

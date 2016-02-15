@@ -14,6 +14,5 @@ export default {
 		}
 	},
 
-	_refList: [],
 	_baseModules: []
 }
