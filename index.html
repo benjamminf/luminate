@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+	<style>
+	[cloak] {
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	.menu {
+		padding: 1em;
+		background: lightgrey;
+		transition: opacity 0.2s ease;
+	}
+
+	.menu.is-closing {
+		opacity: 0;
+	}
+
+	.menu.is-closed {
+		display: none;
+	}
+
+	.submenu {
+		padding: 1em;
+		background: white;
+	}
+
+	.trim > :first-child {
+		margin-top: 0;
+	}
+
+	.trim > :last-child {
+		margin-bottom: 0;
+	}
+
+	.modal {
+		position: fixed;
+		top: 0; bottom: 0;
+		left: 0; right: 0;
+		background: rgba(0, 0, 0, 0.75);
+		transition: opacity 0.2s ease;
+	}
+
+	.modal.is-closing {
+		opacity: 0;
+	}
+
+	.modal.is-closed {
+		display: none;
+	}
+
+	.modal_inner {
+		max-width: 400px;
+		margin: 40px auto;
+		padding: 20px;
+		background: white;
+		text-align: center;
+		transition: transform 0.25s ease;
+	}
+
+	.modal.is-closing .modal_inner {
+		transform: scale(0.9);
+	}
+
+	.selector_item {
+		padding: 1em;
+		background: lightgrey;
+	}
+
+	.selector-buttons > button {
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+		border: 0;
+		background: lightgrey;
+		color: black;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	.selector-buttons > button.is-selected {
+		background-color: black;
+		color: white;
+	}
+
+	.showing-menu {
+		font-weight: bold;
+	}
+	</style>
+</head>
+<body>
+
+<button toggler-action:menu="toggle" toggler-class:menu="showing-menu:isOpen">Toggle</button>
+<button toggler-action:menu="open">Open</button>
+<div class="menu trim" ref="menu" toggler="is:open transition">
+	<p>Hello world</p>
+	<button toggler-action="close">&#215; Close</button>
+	<button toggler-action:submenu="open">Open child</button>
+	<div class="submenu trim" ref="submenu" toggler="is:open transition:height">
+		<p>Goodbye world</p>
+		<button toggler-action="close">&#215; Close</button>
+		<button toggler-action:menu="close">&#215; Close All</button>
+	</div>
+</div>
+
+
+<button toggler-action:dialog="open">Modal</button>
+<div class="modal" ref="dialog" toggler="is:closed transition" cloak>
+	<div class="modal_inner">
+		<p>Hello world</p>
+		<button toggler-action="close">Okay</button>
+	</div>
+</div>
+
+<div class="selector-buttons">
+	<button selector-action:x="select|0" selector-class:x="is-selected:isSelected|0">1</button>
+	<button selector-action:x="select|1" selector-class:x="is-selected:isSelected|1">2</button>
+	<button selector-action:x="select|2" selector-class:x="is-selected:isSelected|2">3</button>
+	<button selector-action:x="select|3" selector-class:x="is-selected:isSelected|3">4</button>
+	<button selector-action:x="select|4" selector-class:x="is-selected:isSelected|4">5</button>
+</div>
+<div class="selector" ref="x" selector="selected:0">
+	<div class="selector_item trim" selector-item="transition:height">
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus egestas neque nec nisi sodales, at mollis sapien mollis. Sed nec interdum tellus, eget tempus lacus. Nam vel bibendum augue. Proin sed ante posuere quam convallis sollicitudin. Integer tempor interdum dolor et aliquam. In tempus luctus mauris at pharetra. Morbi viverra luctus euismod. Integer auctor, tellus sed venenatis posuere, lectus nisi sagittis justo, non rutrum tellus augue sodales nisi. Duis molestie nibh eu arcu tincidunt commodo. Mauris massa urna, fermentum quis ullamcorper porttitor, semper id massa. Nulla efficitur posuere quam. Donec vitae elit sapien. Duis vestibulum quam rutrum luctus eleifend. Quisque sagittis leo erat, sed mattis dui porttitor non.</p>
+	</div>
+	<div class="selector_item trim" selector-item="transition:height" cloak>
+		<p>In et ex in lectus tristique laoreet. Suspendisse potenti. Quisque eleifend tincidunt ligula, scelerisque facilisis mauris mattis eget. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum diam orci, commodo nec magna ac, lacinia consequat metus. Etiam lacinia ligula venenatis dolor finibus, sed porta dolor sodales. Donec elementum est eget ante interdum, non accumsan erat scelerisque. Sed eu nisi fermentum, consectetur orci nec, gravida ex. Duis scelerisque rhoncus urna at varius. Nam non sem non risus imperdiet pretium.</p>
+	</div>
+	<div class="selector_item trim" selector-item="transition:height" cloak>
+		<p>Integer dui quam, egestas vel ultricies a, vehicula tristique augue. Donec id accumsan felis. Suspendisse potenti. Nulla luctus, quam nec tempor aliquam, urna augue dapibus massa, vel luctus tellus ipsum a risus. Vestibulum vitae ornare nisi. Nam vitae quam nulla. Sed tempor risus quis ipsum varius, ut mattis dui placerat. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed enim arcu, lobortis vitae fermentum in, dictum et lectus. Vestibulum sodales ligula et justo vehicula venenatis. Phasellus dapibus leo ac metus pulvinar commodo.</p>
+	</div>
+	<div class="selector_item trim" selector-item="transition:height" cloak>
+		<p>Morbi auctor nisl nec pellentesque finibus. Proin vitae convallis massa. Suspendisse id ipsum vitae elit finibus viverra. Maecenas id ultricies ante, lacinia vulputate dui. Integer facilisis mollis odio a maximus. Integer mi orci, ullamcorper et egestas ut, malesuada non diam. Mauris fermentum lacus ut sapien gravida, quis vulputate mauris placerat. Praesent ut commodo velit. Vestibulum ac dapibus quam. Proin a diam nec purus accumsan volutpat facilisis et mauris. Etiam lectus ligula, efficitur a pellentesque a, sollicitudin suscipit nunc. Ut eget leo in leo feugiat vulputate ac non odio. Morbi at arcu at nibh rutrum feugiat. Aenean velit mi, rutrum sit amet fermentum quis, venenatis nec erat. In tempus libero ut ornare sagittis. Maecenas ex risus, tempus sit amet est at, tincidunt semper urna.</p>
+	</div>
+	<div class="selector_item trim" selector-item="transition:height" cloak>
+		<p>Morbi eu nunc at libero scelerisque rutrum eu ut diam. Phasellus id tellus nisi. Phasellus sed tempus massa. Cras sit amet odio ac nisi pulvinar pretium eu eget odio. Nulla et varius elit. Donec facilisis ullamcorper mollis. Curabitur dui eros, varius id porta nec, eleifend ut purus. Pellentesque rutrum diam quis commodo suscipit. Nullam vitae ante aliquet, condimentum felis pharetra, lacinia nisi. Ut dignissim est elit, vitae efficitur ex tempus vitae. Suspendisse elementum mi sed nisi gravida ultrices. Suspendisse tincidunt dapibus pharetra.</p>
+	</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="dist/luminate.js"></script>
+<script>
+
+var Toggler = Lum._baseModules[0]
+var superTransitionStart = Toggler.events.transitionStart
+
+Toggler.events.toggle = function(e)
+{
+	if(!e.transition && this.$settings.transition === 'height')
+	{
+		this.$element.style.display = (this.showing ? '' : 'none')
+	}
+}
+
+Toggler.events.transitionStart = function()
+{
+	superTransitionStart.call(this)
+
+	var Module = this.constructor
+
+	if(this.$settings.transition === 'height')
+	{
+		var $element = $(this.$element)
+		var complete = function()
+		{
+			Module.trigger('transitionEnd', {target: this})
+		}.bind(this)
+
+		if(this.showing)
+		{
+			$element.slideDown(400, complete)
+		}
+		else
+		{
+			$element.slideUp(400, complete)
+		}
+	}
+}
+
+Lum.start()
+</script>
+
+</body>
+</html>
