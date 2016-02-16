@@ -1190,8 +1190,42 @@
 				}
 			},
 	
+			go: function go() {
+				var count = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+				var transition = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+	
+				var total = this.$owns.items.length;
+				var selected = (this.selected + count) % total;
+	
+				if (selected < 0) {
+					selected += total;
+				}
+	
+				this.select(selected, transition);
+			},
+	
+			next: function next() {
+				var transition = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+				this.go(1, transition);
+			},
+	
+			previous: function previous() {
+				var transition = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+				this.go(-1, transition);
+			},
+	
 			isSelected: function isSelected(index) {
 				return this.selected === index;
+			},
+	
+			isFirst: function isFirst() {
+				return this.isSelected(0);
+			},
+	
+			isLast: function isLast() {
+				return this.isSelected(this.$owns.items.length - 1);
 			}
 		}
 	});

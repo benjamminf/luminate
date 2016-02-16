@@ -63,9 +63,42 @@ export default Base.extend({
 			}
 		},
 
+		go: function(count = 0, transition = true)
+		{
+			const total = this.$owns.items.length
+			let selected = (this.selected + count) % total
+
+			if(selected < 0)
+			{
+				selected += total
+			}
+
+			this.select(selected, transition)
+		},
+
+		next: function(transition = true)
+		{
+			this.go(1, transition)
+		},
+
+		previous: function(transition = true)
+		{
+			this.go(-1, transition)
+		},
+
 		isSelected: function(index)
 		{
 			return this.selected === index
+		},
+
+		isFirst: function()
+		{
+			return this.isSelected(0)
+		},
+
+		isLast: function()
+		{
+			return this.isSelected(this.$owns.items.length - 1)
 		}
 	}
 })
