@@ -177,6 +177,7 @@
 	
 		defaults: {
 			is: 'open',
+			transition: false,
 			classOpen: 'is-open',
 			classClosed: 'is-closed',
 			classOpening: 'is-opening',
@@ -242,7 +243,6 @@
 				var transition = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 	
 				var Module = this.constructor;
-				var prevIsOpen = this.showing;
 				var classes = this.$element.classList;
 	
 				var oldShowing = this.showing;
@@ -251,7 +251,7 @@
 				if (oldShowing !== newShowing) {
 					this.showing = newShowing;
 	
-					if (transition && this.showing !== prevIsOpen) {
+					if (transition && this.$settings.transition) {
 						Module.trigger('transitionStart', { target: this });
 					} else {
 						classes.remove(this.$settings.classClosing, this.$settings.classOpening);

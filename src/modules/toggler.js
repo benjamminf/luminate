@@ -19,6 +19,7 @@ export default Base.extend({
 
 	defaults: {
 		is: 'open',
+		transition: false,
 		classOpen: 'is-open',
 		classClosed: 'is-closed',
 		classOpening: 'is-opening',
@@ -93,7 +94,6 @@ export default Base.extend({
 		toggle: function(isOpen, transition = true)
 		{
 			const Module = this.constructor
-			const prevIsOpen = this.showing
 			const classes = this.$element.classList
 
 			const oldShowing = this.showing
@@ -103,7 +103,7 @@ export default Base.extend({
 			{
 				this.showing = newShowing
 
-				if(transition && this.showing !== prevIsOpen)
+				if(transition && this.$settings.transition)
 				{
 					Module.trigger('transitionStart', {target: this})
 				}
