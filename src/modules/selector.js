@@ -53,6 +53,7 @@ export default Base.extend({
 					let item = this.$owns.items[i]
 
 					item.toggle(i === newSelected, transition)
+					item.$element.classList.toggle(this.$settings.classSelected, i === newSelected)
 				}
 
 				this.trigger('change', {
