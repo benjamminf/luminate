@@ -5,12 +5,28 @@ import * as Parser from '../helpers/parser'
 
 export default class Base extends Emitter
 {
+	static getDirective(owner = null)
+	{
+		const Module = this
+		const d = Module.directive
+
+		if(owner)
+		{
+			const OwnerModule = owner.constructor
+			const od = OwnerModule.getDirective(owner.$owner)
+
+			return `${od}-${d}`
+		}
+
+		return d
+	}
+
 	static getSelector(owner = null)
 	{
 		const Module = this
 
 		let p = Config.directivePrefix
-		let d = Module.directive
+		let d = Module.getDirective(owner)
 		let selector = [`[${p}${d}]`]
 
 		if(owner)
@@ -27,7 +43,7 @@ export default class Base extends Emitter
 		const Module = this
 
 		let p = Config.directivePrefix
-		let d = Module.directive
+		let d = Module.getDirective(owner)
 		let ref = Module.getReference(element, owner)
 		let settings = ''
 
@@ -48,7 +64,7 @@ export default class Base extends Emitter
 		const Module = this
 
 		let p = Config.directivePrefix
-		let d = Module.directive
+		let d = Module.getDirective(owner)
 
 		if(!element.hasAttribute(`${p}${d}`) && owner)
 		{
@@ -95,6 +111,7 @@ export default class Base extends Emitter
 			}
 		}
 
+		Module.getDirective = SuperModule.getDirective
 		Module.getSelector = SuperModule.getSelector
 		Module.getSettings = SuperModule.getSettings
 		Module.getReference = SuperModule.getReference
@@ -171,7 +188,7 @@ export default class Base extends Emitter
 		this.$owns = {}
 		this.$settings = Object.assign({}, Module.defaults, settings)
 
-		Element.data(element, Module.directive, this)
+		Element.data(element, Module.getDirective(owner), this)
 	}
 }
 

@@ -165,14 +165,8 @@
 		directive: 'toggler',
 	
 		modules: {
-	
-			actions: _action2.default.extend({
-				directive: 'toggler-action'
-			}),
-	
-			classes: _class2.default.extend({
-				directive: 'toggler-class'
-			})
+			actions: _action2.default,
+			classes: _class2.default
 		},
 	
 		defaults: {
@@ -382,6 +376,23 @@
 		_inherits(Base, _Emitter);
 	
 		_createClass(Base, null, [{
+			key: 'getDirective',
+			value: function getDirective() {
+				var owner = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	
+				var Module = this;
+				var d = Module.directive;
+	
+				if (owner) {
+					var OwnerModule = owner.constructor;
+					var od = OwnerModule.getDirective(owner.$owner);
+	
+					return od + '-' + d;
+				}
+	
+				return d;
+			}
+		}, {
 			key: 'getSelector',
 			value: function getSelector() {
 				var owner = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
@@ -389,7 +400,7 @@
 				var Module = this;
 	
 				var p = _config2.default.directivePrefix;
-				var d = Module.directive;
+				var d = Module.getDirective(owner);
 				var selector = ['[' + p + d + ']'];
 	
 				if (owner) {
@@ -407,7 +418,7 @@
 				var Module = this;
 	
 				var p = _config2.default.directivePrefix;
-				var d = Module.directive;
+				var d = Module.getDirective(owner);
 				var ref = Module.getReference(element, owner);
 				var settings = '';
 	
@@ -427,7 +438,7 @@
 				var Module = this;
 	
 				var p = _config2.default.directivePrefix;
-				var d = Module.directive;
+				var d = Module.getDirective(owner);
 	
 				if (!element.hasAttribute('' + p + d) && owner) {
 					var ref = owner.$element.getAttribute(p + 'ref');
@@ -501,6 +512,7 @@
 					}
 				}
 	
+				Module.getDirective = SuperModule.getDirective;
 				Module.getSelector = SuperModule.getSelector;
 				Module.getSettings = SuperModule.getSettings;
 				Module.getReference = SuperModule.getReference;
@@ -623,7 +635,7 @@
 			_this.$owns = {};
 			_this.$settings = Object.assign({}, Module.defaults, settings);
 	
-			Element.data(element, Module.directive, _this);
+			Element.data(element, Module.getDirective(owner), _this);
 			return _this;
 		}
 	
@@ -905,6 +917,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = _base2.default.extend({
+		directive: 'action',
 	
 		events: {
 	
@@ -1020,6 +1033,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = _base2.default.extend({
+		directive: 'class',
 	
 		events: {
 	
@@ -1137,18 +1151,9 @@
 		directive: 'selector',
 	
 		modules: {
-	
-			actions: _action2.default.extend({
-				directive: 'selector-action'
-			}),
-	
-			classes: _class2.default.extend({
-				directive: 'selector-class'
-			}),
-	
-			items: _toggler2.default.extend({
-				directive: 'selector-item'
-			})
+			actions: _action2.default,
+			classes: _class2.default,
+			items: _toggler2.default.extend({ directive: 'item' })
 		},
 	
 		defaults: {
@@ -1180,6 +1185,7 @@
 						var item = this.$owns.items[i];
 	
 						item.toggle(i === newSelected, transition);
+						item.$element.classList.toggle(this.$settings.classSelected, i === newSelected);
 					}
 	
 					this.trigger('change', {

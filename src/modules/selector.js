@@ -8,18 +8,9 @@ export default Base.extend({
 	directive: 'selector',
 
 	modules: {
-
-		actions: Action.extend({
-			directive: 'selector-action'
-		}),
-
-		classes: Class.extend({
-			directive: 'selector-class'
-		}),
-
-		items: Toggler.extend({
-			directive: 'selector-item'
-		})
+		actions: Action,
+		classes: Class,
+		items: Toggler.extend({directive: 'item'})
 	},
 
 	defaults: {

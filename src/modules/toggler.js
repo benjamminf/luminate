@@ -7,14 +7,8 @@ export default Base.extend({
 	directive: 'toggler',
 
 	modules: {
-
-		actions: Action.extend({
-			directive: 'toggler-action'
-		}),
-
-		classes: Class.extend({
-			directive: 'toggler-class'
-		})
+		actions: Action,
+		classes: Class
 	},
 
 	defaults: {

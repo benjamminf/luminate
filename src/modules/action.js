@@ -3,6 +3,7 @@ import Base from './base'
 import * as Parser from '../helpers/parser'
 
 export default Base.extend({
+	directive: 'action',
 
 	events: {
 
