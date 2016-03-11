@@ -56,7 +56,7 @@ export default class Base extends Emitter
 			settings = element.getAttribute(`${p}${d}`) || element.getAttribute(d)
 		}
 
-		return Parser.settings(settings)
+		return Parser.settings(settings || '')
 	}
 
 	static getReference(element, owner = null)
