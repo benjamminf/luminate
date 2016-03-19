@@ -18,7 +18,7 @@ This is where Luminate comes in. It's a component *system* that is intended to b
 ### Toggle display of an element with fade in/out
 ```html
 <button toggler-action:target="toggle">Toggle</button>
-<div class="box" rel="target" toggler="is:open transition">Hello world</div>
+<div class="box" ref="target" toggler="is:open transition">Hello world</div>
 ```
 ```css
 .box { transition: opacity 0.5s; }
