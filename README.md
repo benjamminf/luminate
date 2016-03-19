@@ -33,6 +33,10 @@ This is where Luminate comes in. It's a component *system* that is intended to b
 </div>
 ```
 ```javascript
+import Lum from 'lum'
+import Base from 'modules/base'
+import Action from 'modules/action'
+
 const Hello = Base.extend({
   directive: 'hello',
   modules: {
