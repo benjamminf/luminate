@@ -54,3 +54,11 @@ const Hello = Base.extend({
 
 Lum.register(Hello)
 ```
+
+## But why is this better than just using [React](https://facebook.github.io/react/)?
+
+Well, it's not really _better_, but it does come with some benefits. Most MV* frameworks introduce some sort of complicated system for keeping the data and DOM in sync. React, for example, uses something called the virtual DOM, where they keep a copy of the entire DOM in memory and perform all changes on that, then use that to track changes and update the real DOM. This problem here is that if I wanted to load some jQuery plugin like [slick](http://kenwheeler.github.io/slick/) on top of a React application, weird behaviour would happen as there'd be no copy of it in the virtual DOM. To fix this, you'd have to create a React component that would act as a wrapper for slick, but you still couldn't be sure how slick will behave and whether it'd break something important and cause a nuclear meltdown.
+
+Luminate doesn't include any rendering system of any sort, as there is no "two-way data binding". This means it's essentially fully compatible with any old jQuery plugin you throw on top.
+
+Also, there's really not much to know about Luminate, so you'll be up and running quickly, and if you decide it's not for you, then you wouldn't have wasted much time.
