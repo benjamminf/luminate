@@ -36,10 +36,10 @@ This is where Luminate comes in. It's a component *system* that is intended to b
 const Hello = Base.extend({
   directive: 'hello',
   modules: {
-    action: Action
+    actions: Action
   },
   defaults: {
-    phrase: 'hello'
+    phrase: 'hi'
   },
   methods: {
     say() {
