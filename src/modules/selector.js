@@ -91,12 +91,24 @@ export default Base.extend({
 		play: function(interval = this.$settings.interval)
 		{
 			this._interval = setInterval(() => this.next(), interval | 0)
+
+			this.trigger('change', {
+				property: 'interval',
+				oldValue: false,
+				newValue: true
+			})
 		},
 
 		stop: function()
 		{
 			clearInterval(this._interval)
 			this._interval = false
+
+			this.trigger('change', {
+				property: 'interval',
+				oldValue: true,
+				newValue: false
+			})
 		},
 
 		isSelected: function(index)
