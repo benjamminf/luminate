@@ -15,6 +15,7 @@ export default Base.extend({
 
 	defaults: {
 		selected: 0,
+		interval: 0,
 		classSelected: 'is-selected'
 	},
 
@@ -25,6 +26,15 @@ export default Base.extend({
 			const Module = this.constructor
 
 			this.select(this.$settings.selected | 0, false)
+
+			if(this.$settings.interval > 0)
+			{
+				this.play()
+			}
+			else
+			{
+				this.stop()
+			}
 		}
 	},
 
@@ -78,6 +88,17 @@ export default Base.extend({
 			this.go(-1, transition)
 		},
 
+		play: function(interval = this.$settings.interval)
+		{
+			this._interval = setInterval(() => this.next(), interval | 0)
+		},
+
+		stop: function()
+		{
+			clearInterval(this._interval)
+			this._interval = false
+		},
+
 		isSelected: function(index)
 		{
 			return this.selected === index
@@ -91,6 +112,11 @@ export default Base.extend({
 		isLast: function()
 		{
 			return this.isSelected(this.$owns.items.length - 1)
+		},
+
+		isPlaying: function()
+		{
+			return this._interval !== false
 		}
 	}
 })
