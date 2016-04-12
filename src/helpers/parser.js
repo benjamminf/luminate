@@ -2,6 +2,8 @@ import Method from './method'
 
 export function settings(string = '')
 {
+	string = (typeof string === 'string' ? string : '')
+	
 	const parsed = {}
 
 	let parts = string.trim().split(/\s+/)
