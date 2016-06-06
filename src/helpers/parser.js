@@ -4,6 +4,11 @@ export function settings(string = '')
 {
 	string = (typeof string === 'string' ? string : '')
 	
+	if(string[0] === '{')
+	{
+		return JSON.parse(string)
+	}
+	
 	const parsed = {}
 
 	let parts = string.trim().split(/\s+/)
