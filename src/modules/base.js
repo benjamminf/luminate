@@ -56,7 +56,7 @@ export default class Base extends Emitter
 			settings = element.getAttribute(`${p}${d}`) || element.getAttribute(d)
 		}
 
-		return Parser.settings(settings || '')
+		return Parser.settings(settings)
 	}
 
 	static getReference(element, owner = null)
@@ -100,7 +100,12 @@ export default class Base extends Emitter
 	static extend(settings)
 	{
 		const SuperModule = this
-		const Module = class extends SuperModule {}
+		const Module = function()
+		{
+			SuperModule.apply(this, arguments)
+		}
+
+		Module.prototype = new SuperModule()
 
 		if(settings.methods)
 		{
@@ -110,6 +115,8 @@ export default class Base extends Emitter
 				Module.prototype[name] = method
 			}
 		}
+
+		Module.prototype.constructor = Module
 
 		Module.getDirective = SuperModule.getDirective
 		Module.getSelector = SuperModule.getSelector
@@ -180,6 +187,9 @@ export default class Base extends Emitter
 	constructor(element, settings = {}, owner = null)
 	{
 		super()
+		Emitter.call(this)
+
+		if(!element) return
 
 		const Module = this.constructor
 
