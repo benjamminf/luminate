@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.0.1',
+		version: '0.2.0',
 	
 		register: function register(module) {
 			this._baseModules.push(module);
@@ -472,17 +472,11 @@
 			key: 'extend',
 			value: function extend(settings) {
 				var SuperModule = this;
-				var Module = function (_SuperModule) {
-					_inherits(Module, _SuperModule);
+				var Module = function Module() {
+					SuperModule.apply(this, arguments);
+				};
 	
-					function Module() {
-						_classCallCheck(this, Module);
-	
-						return _possibleConstructorReturn(this, Object.getPrototypeOf(Module).apply(this, arguments));
-					}
-	
-					return Module;
-				}(SuperModule);
+				Module.prototype = new SuperModule();
 	
 				if (settings.methods) {
 					var _iteratorNormalCompletion = true;
@@ -511,6 +505,8 @@
 						}
 					}
 				}
+	
+				Module.prototype.constructor = Module;
 	
 				Module.getDirective = SuperModule.getDirective;
 				Module.getSelector = SuperModule.getSelector;
@@ -627,6 +623,10 @@
 			_classCallCheck(this, Base);
 	
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Base).call(this));
+	
+			_emitter2.default.call(_this);
+	
+			if (!element) return _possibleConstructorReturn(_this);
 	
 			var Module = _this.constructor;
 	
@@ -782,6 +782,12 @@
 	
 	function settings() {
 		var string = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	
+		string = typeof string === 'string' ? string : '';
+	
+		if (string[0] === '{') {
+			return JSON.parse(string);
+		}
 	
 		var parsed = {};
 	
@@ -1158,6 +1164,7 @@
 	
 		defaults: {
 			selected: 0,
+			interval: 0,
 			classSelected: 'is-selected'
 		},
 	
@@ -1167,6 +1174,12 @@
 				var Module = this.constructor;
 	
 				this.select(this.$settings.selected | 0, false);
+	
+				if (this.$settings.interval > 0) {
+					this.play();
+				} else {
+					this.stop();
+				}
 			}
 		},
 	
@@ -1222,6 +1235,33 @@
 				this.go(-1, transition);
 			},
 	
+			play: function play() {
+				var _this = this;
+	
+				var interval = arguments.length <= 0 || arguments[0] === undefined ? this.$settings.interval : arguments[0];
+	
+				this._interval = setInterval(function () {
+					return _this.next();
+				}, interval | 0);
+	
+				this.trigger('change', {
+					property: 'interval',
+					oldValue: false,
+					newValue: true
+				});
+			},
+	
+			stop: function stop() {
+				clearInterval(this._interval);
+				this._interval = false;
+	
+				this.trigger('change', {
+					property: 'interval',
+					oldValue: true,
+					newValue: false
+				});
+			},
+	
 			isSelected: function isSelected(index) {
 				return this.selected === index;
 			},
@@ -1232,6 +1272,10 @@
 	
 			isLast: function isLast() {
 				return this.isSelected(this.$owns.items.length - 1);
+			},
+	
+			isPlaying: function isPlaying() {
+				return this._interval !== false;
 			}
 		}
 	});
