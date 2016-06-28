@@ -44,7 +44,7 @@ export default Base.extend({
 					this.$element.addEventListener(eventType, e =>
 					{
 						e.preventDefault()
-						method.run(this.$owner)
+						method.run(this.$owner, this)
 					})
 				})
 			}

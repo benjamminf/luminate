@@ -6,13 +6,37 @@ export default class
 		this.args = args
 	}
 
-	run(module)
+	run(target, source = null)
 	{
-		if(typeof module[this.name] === 'function')
-		{
-			return module[this.name].apply(module, this.args)
+		source = source || target
+
+		let value
+		let e = {
+			name: this.name,
+			args: this.args,
+			caller: source
 		}
 
-		return module[this.name]
+		target.trigger('methodCall', e)
+
+		if(typeof target[e.name] === 'function')
+		{
+			value = target[e.name].apply(target, e.args)
+		}
+		else
+		{
+			value = target[this.name]
+		}
+
+		e = {
+			name: e.name,
+			args: e.args,
+			value: value,
+			caller: source
+		}
+
+		target.trigger('methodReturn', e)
+
+		return e.value
 	}
 }
