@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.2.0',
+		version: '0.2.1',
 	
 		register: function register(module) {
 			this._baseModules.push(module);
@@ -882,12 +882,36 @@
 	
 		_createClass(_class, [{
 			key: 'run',
-			value: function run(module) {
-				if (typeof module[this.name] === 'function') {
-					return module[this.name].apply(module, this.args);
+			value: function run(target) {
+				var source = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+	
+				source = source || target;
+	
+				var value = undefined;
+				var e = {
+					name: this.name,
+					args: this.args,
+					caller: source
+				};
+	
+				target.trigger('methodCall', e);
+	
+				if (typeof target[e.name] === 'function') {
+					value = target[e.name].apply(target, e.args);
+				} else {
+					value = target[this.name];
 				}
 	
-				return module[this.name];
+				e = {
+					name: e.name,
+					args: e.args,
+					value: value,
+					caller: source
+				};
+	
+				target.trigger('methodReturn', e);
+	
+				return e.value;
 			}
 		}]);
 
@@ -986,7 +1010,7 @@
 						settings[eventType].forEach(function (method) {
 							_this.$element.addEventListener(eventType, function (e) {
 								e.preventDefault();
-								method.run(_this.$owner);
+								method.run(_this.$owner, _this);
 							});
 						});
 					};
