@@ -40,6 +40,11 @@ export default Base.extend({
 			}
 		},
 
+		action: function(e)
+		{
+			e.event.preventDefault()
+		},
+
 		transitionStart: function()
 		{
 			const classes = this.$element.classList

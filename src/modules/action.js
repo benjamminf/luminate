@@ -43,7 +43,13 @@ export default Base.extend({
 				{
 					this.$element.addEventListener(eventType, e =>
 					{
-						e.preventDefault()
+						const OwnerModule = this.$owner.constructor
+
+						OwnerModule.trigger('action', {
+							method: method,
+							event: e
+						})
+						
 						method.run(this.$owner, this)
 					})
 				})

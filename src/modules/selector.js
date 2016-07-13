@@ -35,6 +35,11 @@ export default Base.extend({
 			{
 				this.stop()
 			}
+		},
+
+		action: function(e)
+		{
+			e.event.preventDefault()
 		}
 	},
 
