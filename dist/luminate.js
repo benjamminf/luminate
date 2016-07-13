@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.2.1',
+		version: '0.2.2',
 	
 		register: function register(module) {
 			this._baseModules.push(module);
@@ -194,6 +194,10 @@
 						}
 					});
 				}
+			},
+	
+			action: function action(e) {
+				e.event.preventDefault();
 			},
 	
 			transitionStart: function transitionStart() {
@@ -1009,7 +1013,13 @@
 	
 						settings[eventType].forEach(function (method) {
 							_this.$element.addEventListener(eventType, function (e) {
-								e.preventDefault();
+								var OwnerModule = _this.$owner.constructor;
+	
+								OwnerModule.trigger('action', {
+									method: method,
+									event: e
+								});
+	
 								method.run(_this.$owner, _this);
 							});
 						});
@@ -1204,6 +1214,10 @@
 				} else {
 					this.stop();
 				}
+			},
+	
+			action: function action(e) {
+				e.event.preventDefault();
 			}
 		},
 	

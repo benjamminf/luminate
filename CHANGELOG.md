@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.2.2
+- `Added` Added `action` module event for handling action calls
+
 #### v0.2.1
 - `Added` Methods run by modules (such as the Action module) now trigger events
 
