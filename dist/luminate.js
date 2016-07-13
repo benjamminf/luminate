@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.2.3',
+		version: '0.2.4',
 	
 		register: function register(module) {
 			this._baseModules.push(module);
@@ -468,7 +468,7 @@
 					eventFn.call(data.target, data);
 				}
 	
-				if (ExtendedModule) {
+				if (ExtendedModule && !data.stopPropagation) {
 					ExtendedModule.trigger(eventType, data);
 				}
 			}

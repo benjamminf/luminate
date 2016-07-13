@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.2.4
+- `Improved` Implemented propagation control for module events
+
 #### v0.2.3
 - `Fixed` Action event now has correct context
 
