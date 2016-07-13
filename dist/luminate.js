@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.2.2',
+		version: '0.2.3',
 	
 		register: function register(module) {
 			this._baseModules.push(module);

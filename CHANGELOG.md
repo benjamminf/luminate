@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.2.3
+- `Fixed` Action event now has correct context
+
 #### v0.2.2
 - `Added` Added `action` module event for handling action calls
 
