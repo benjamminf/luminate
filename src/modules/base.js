@@ -91,7 +91,7 @@ export default class Base extends Emitter
 			eventFn.call(data.target, data)
 		}
 
-		if(ExtendedModule)
+		if(ExtendedModule && !data.stopPropagation)
 		{
 			ExtendedModule.trigger(eventType, data)
 		}
