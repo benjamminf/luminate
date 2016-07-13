@@ -81,7 +81,7 @@
 		value: true
 	});
 	exports.default = {
-		version: '0.2.4',
+		version: '0.2.5',
 	
 		register: function register(module) {
 			this._baseModules.push(module);
@@ -253,8 +253,15 @@
 						Module.trigger('transitionStart', { target: this });
 					} else {
 						classes.remove(this.$settings.classClosing, this.$settings.classOpening);
-						classes.toggle(this.$settings.classOpen, this.showing);
-						classes.toggle(this.$settings.classClosed, !this.showing);
+	
+						// Don't use `classes.toggle()` since IE doesn't support second toggle parameter
+						if (this.showing) {
+							classes.add(this.$settings.classOpen);
+							classes.remove(this.$settings.classClosed);
+						} else {
+							classes.remove(this.$settings.classOpen);
+							classes.add(this.$settings.classClosed);
+						}
 					}
 	
 					this.trigger('change', {
@@ -301,9 +308,20 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+	exports.matches = matches;
 	exports.closest = closest;
 	exports.data = data;
 	exports.repaint = repaint;
+	function matches(element, selector) {
+		if (element.matches) return element.matches(selector);
+		if (element.webkitMatchesSelector) return element.webkitMatchesSelector(selector);
+		if (element.mozMatchesSelector) return element.mozMatchesSelector(selector);
+		if (element.oMatchesSelector) return element.oMatchesSelector(selector);
+		if (element.msMatchesSelector) return element.msMatchesSelector(selector);
+	
+		return false;
+	}
+	
 	function closest(element, selector) {
 		if (element.closest) {
 			return element.closest(selector);
@@ -311,7 +329,7 @@
 	
 		var currentElement = element;
 		while (currentElement) {
-			if (currentElement.matches(selector)) {
+			if (matches(currentElement, selector)) {
 				return currentElement;
 			}
 	

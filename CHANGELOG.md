@@ -1,5 +1,9 @@
 # Changelog
 
+#### v0.2.5
+- `Fixed` Fixed incorrect toggle state in IE when toggling without transitions
+- `Fixed` Fixed issue in IE where element matching wasn't working
+
 #### v0.2.4
 - `Improved` Implemented propagation control for module events
 
