@@ -109,8 +109,18 @@ export default Base.extend({
 				else
 				{
 					classes.remove(this.$settings.classClosing, this.$settings.classOpening)
-					classes.toggle(this.$settings.classOpen, this.showing)
-					classes.toggle(this.$settings.classClosed, !this.showing)
+
+					// Don't use `classes.toggle()` since IE doesn't support second toggle parameter
+					if(this.showing)
+					{
+						classes.add(this.$settings.classOpen)
+						classes.remove(this.$settings.classClosed)
+					}
+					else
+					{
+						classes.remove(this.$settings.classOpen)
+						classes.add(this.$settings.classClosed)
+					}
 				}
 
 				this.trigger('change', {

@@ -1,3 +1,14 @@
+export function matches(element, selector)
+{
+	if(element.matches) return element.matches(selector)
+	if(element.webkitMatchesSelector) return element.webkitMatchesSelector(selector)
+	if(element.mozMatchesSelector) return element.mozMatchesSelector(selector)
+	if(element.oMatchesSelector) return element.oMatchesSelector(selector)
+	if(element.msMatchesSelector) return element.msMatchesSelector(selector)
+
+	return false
+}
+
 export function closest(element, selector)
 {
 	if(element.closest)
@@ -8,7 +19,7 @@ export function closest(element, selector)
 	let currentElement = element
 	while(currentElement)
 	{
-		if(currentElement.matches(selector))
+		if(matches(currentElement, selector))
 		{
 			return currentElement
 		}
