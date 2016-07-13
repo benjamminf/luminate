@@ -1016,6 +1016,7 @@
 								var OwnerModule = _this.$owner.constructor;
 	
 								OwnerModule.trigger('action', {
+									target: _this.$owner,
 									method: method,
 									event: e
 								});

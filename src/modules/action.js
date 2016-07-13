@@ -46,10 +46,11 @@ export default Base.extend({
 						const OwnerModule = this.$owner.constructor
 
 						OwnerModule.trigger('action', {
+							target: this.$owner,
 							method: method,
 							event: e
 						})
-						
+
 						method.run(this.$owner, this)
 					})
 				})
