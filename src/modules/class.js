@@ -33,7 +33,16 @@ export default Base.extend({
 				this.$owner.on('change', e =>
 				{
 					const toggle = method.run(this.$owner)
-					this.$element.classList.toggle(className, toggle)
+					const classes = this.$element.classList
+
+					if(toggle)
+					{
+						classes.add(className)
+					}
+					else
+					{
+						classes.remove(className)
+					}
 				})
 			}
 		}
