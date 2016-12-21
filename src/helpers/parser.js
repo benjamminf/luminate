@@ -50,7 +50,7 @@ export function method(data)
 		let eventMethod = data
 		let methodParts = eventMethod.split('|')
 		let methodName = methodParts[0]
-		let methodArgs = methodParts[1] ? methodParts[1].split('') : []
+		let methodArgs = methodParts[1] ? methodParts[1].split(',') : []
 
 		for(let i = 0; i < methodArgs.length; i++)
 		{
