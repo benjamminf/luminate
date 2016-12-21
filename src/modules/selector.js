@@ -10,7 +10,12 @@ export default Base.extend({
 	modules: {
 		actions: Action,
 		classes: Class,
-		items: Toggler.extend({directive: 'item'})
+		items: Toggler.extend({
+			directive: 'item',
+			defaults: {
+				label: false,
+			},
+		})
 	},
 
 	defaults: {
@@ -45,8 +50,29 @@ export default Base.extend({
 
 	methods: {
 
+		_normalizeIndex: function(index)
+		{
+			if(isNaN(index))
+			{
+				for(let i = 0; i < this.$owns.items.length; i++)
+				{
+					let item = this.$owns.items[i]
+
+					if(item.$settings.label == index)
+					{
+						index = i
+						break
+					}
+				}
+			}
+
+			return index
+		},
+
 		select: function(index, transition = true)
 		{
+			index = this._normalizeIndex(index)
+
 			const oldSelected = this.selected
 			const newSelected = index | 0
 
@@ -118,6 +144,8 @@ export default Base.extend({
 
 		isSelected: function(index)
 		{
+			index = this._normalizeIndex(index)
+			
 			return this.selected === index
 		},
 
